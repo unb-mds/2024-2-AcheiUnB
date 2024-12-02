@@ -123,15 +123,13 @@ SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+from decouple import config
+import dj_database_url
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "db",
-        "USER": "postgres",
-        "PASSWORD": "senha",
-        "HOST": "db",
-        "PORT": "5432",
-    }
+    "default": dj_database_url.config(
+        default=config("DATABASE_URL")
+    )
 }
 
 
