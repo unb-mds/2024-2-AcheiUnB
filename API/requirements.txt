@@ -14,3 +14,4 @@ djangorestframework
 django-extensions
 djangorestframework-simplejwt
 django-cors-headers==4.6.0
+dj-database-url

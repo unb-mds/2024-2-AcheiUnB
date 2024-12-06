@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import dj_database_url
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -124,13 +124,13 @@ SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "db",
-        "USER": "postgres",
-        "PASSWORD": "senha",
-        "HOST": "db",
-        "PORT": "5432",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'd92d3p1lq66bin',  # Nome do banco extraído da URL
+        'USER': 'ufs55a00v7r5j4',  # Usuário do banco
+        'PASSWORD': 'p8e32e1af28fc8978434604b7985c49a3a3d8dfeb4ddc91ce8681cf9109dea61f',  # Senha
+        'HOST': 'c9pv5s2sq0i76o.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com',  # Host
+        'PORT': '5432',  # Porta padrão do PostgreSQL
     }
 }
 
