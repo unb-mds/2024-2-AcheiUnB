@@ -1,3 +1,8 @@
+setup:
+  addons:
+    - plan: heroku-postgresql
+      as: DATABASE
+
 build:
   docker:
     web: Dockerfile
@@ -5,3 +10,6 @@ build:
 release:
   command:
     - python manage.py migrate
+
+run:
+  web: gunicorn AcheiUnB.wsgi:application --bind 0.0.0.0:$PORT
