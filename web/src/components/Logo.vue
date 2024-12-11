@@ -1,6 +1,7 @@
 <template>
-  <h1 :class="['text-5xl italic', customClass || 'text-light']">
-    Achei<span class="text-5xl font-bold">UnB</span>
+  <h1 :class="[customClass || 'text-light']">
+    <span class="italic" :class="sizeClass">Achei</span>
+    <span class="font-bold" :class="sizeClass">UnB</span>
   </h1>
 </template>
 
@@ -9,6 +10,10 @@ export default {
   props: {
     customClass: {
       type: String,
+    },
+    sizeClass: {
+      type: String,
+      default: "text-5xl",
     },
   },
 };

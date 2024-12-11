@@ -1,4 +1,17 @@
-/*@import './base.css';*/
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/assets/fonts/Inter/static/Inter_24pt-SemiBold.ttf")
+    format("truetype");
+}
+
+/* Configuração global de fontes */
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* @import "./base.css"; */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

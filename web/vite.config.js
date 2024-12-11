@@ -20,7 +20,8 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: path.resolve(__dirname, '../API/AcheiUnB/static/dist'), // Diretório de saída
-    assetsDir: './', // Configura o caminho relativo para assets
+    outDir: path.resolve(__dirname, '../API/AcheiUnB/static/dist'),
+    emptyOutDir: true,
+    assetsDir: './',
   },
 })
