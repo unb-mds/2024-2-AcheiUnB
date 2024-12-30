@@ -6,7 +6,7 @@ class ChatRoom(models.Model):
     """Representa uma sala de chat entre dois usuários."""
     participant_1 = models.ForeignKey(User, related_name="chatrooms_as_participant_1", on_delete=models.CASCADE)
     participant_2 = models.ForeignKey(User, related_name="chatrooms_as_participant_2", on_delete=models.CASCADE)
-    item_description = models.CharField(max_length=255, blank=True, null=True)  # Descrição do item perdido (opcional)
+    item_description = models.CharField(max_length=250, blank=True, null=True)  # Descrição do item perdido (opcional)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
