@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+import cloudinary
+import cloudinary.uploader
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -146,6 +149,14 @@ DATABASES = {
     }
 }
 
+# Cloudinary
+
+
+cloudinary.config(
+    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
+    api_key=config("CLOUDINARY_API_KEY"),
+    api_secret=config("CLOUDINARY_API_SECRET"),
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

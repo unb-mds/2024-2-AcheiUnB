@@ -7,7 +7,7 @@ psycopg2-binary==2.9.10
 requests==2.32.3
 setuptools==75.5.0
 sqlparse==0.5.1
-urllib3==2.2.3
+urllib3>=1.26.5,<2
 Pillow
 djangorestframework
 django-extensions
@@ -17,3 +17,5 @@ django-cors-headers==4.6.0
 drf-yasg
 msal
 django-filter>=22.1
+cloudinary==1.32.0
+python-decouple

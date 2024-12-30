@@ -32,6 +32,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.views import View
 from .models import UserProfile
+import cloudinary.uploader
 
 
 # Configurações do MSAL
@@ -64,6 +65,7 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+
 class ColorViewSet(ModelViewSet):
     queryset = Color.objects.all()
     serializer_class = ColorSerializer
@@ -79,11 +81,10 @@ class BrandViewSet(ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    
+
 
 class ItemImageViewSet(ModelViewSet):
     serializer_class = ItemImageSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         item_id = self.kwargs.get("item_id")
@@ -98,7 +99,30 @@ class ItemImageViewSet(ModelViewSet):
                 {"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = self.get_serializer(data=request.data)
+        # Valida o limite de imagens
+        if item.images.count() >= 3:
+            return Response(
+                {"error": "Você pode adicionar no máximo 3 imagens por item."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Fazer upload da imagem para o Cloudinary.
+        image_file = request.FILES.get("image")
+
+        if not image_file:
+            return Response(
+                {"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            upload_result = cloudinary.uploader.upload(image_file)
+            image_url = upload_result.get("secure_url")
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        serializer = self.get_serializer(data={"image_url": image_url})
         serializer.is_valid(raise_exception=True)
         serializer.save(item=item)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
