@@ -5,10 +5,8 @@ export default {
     extend: {
       colors: {
         azul: "#133E78",
-        azulclaro: "#133E7833",
         laranja: "#F59E0B",
         verde: "#008940",
-        verdeclaro: "#00894033",
         cinza1: "#EAEAEA",
         cinza2: "#D9D9D9",
         cinza3: "#8899a8",

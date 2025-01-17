@@ -3,7 +3,8 @@ import Login from "../views/Login.vue";
 import About from "../views/About.vue";
 import Lost from "../views/Lost.vue";
 import Found from "../views/Found.vue";
-import Register from "../views/Register.vue";
+import RegisterLost from "../views/Register-Lost.vue";
+import RegisterFound from "../views/Register-Found.vue";
 import User from "../views/User.vue";
 import Chats from "../views/Chats.vue";
 
@@ -29,9 +30,14 @@ const routes = [
     component: Found,
   },
   {
-    path: "/register",
-    name: "Register",
-    component: Register,
+    path: "/register-lost",
+    name: "RegisterLost",
+    component: RegisterLost,
+  },
+  {
+    path: "/register-found",
+    name: "RegisterFound",
+    component: RegisterFound,
   },
   {
     path: "/user",

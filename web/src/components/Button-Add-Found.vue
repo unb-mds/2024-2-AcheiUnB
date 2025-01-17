@@ -1,5 +1,5 @@
 <template>
-  <router-link to="/register">
+  <router-link to="/register-found">
     <button
       class="fixed right-0 bottom-28 rounded-l-lg w-60 h-12 cursor-pointer flex items-center border border-laranja bg-laranja group hover:bg-laranja active:bg-laranja active:border-laranja">
       <span class="text-azul font-inter font-medium ml-6 transform group-hover:translate-x-0">Adicionar item
