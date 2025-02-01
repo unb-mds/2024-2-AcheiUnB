@@ -10,7 +10,7 @@ import Chats from "../views/Chats.vue";
 import ListItem from "../views/ListItem.vue";
 import UserItemsLost from "../views/UserItems-Lost.vue";
 import UserItemsFound from "../views/UserItems-Found.vue";
-import api from "@/services/base-api";
+import { validateToken } from "@/services/auth-api";
 
 const routes = [
   {
@@ -87,9 +87,7 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   if (to.meta.requiresAuth) {
     try {
-      await api.get("/auth/validate", {
-        withCredentials: true,
-      });
+      await validateToken();
       return true;
     } catch {
       return { name: "Login" };

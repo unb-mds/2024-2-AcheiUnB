@@ -22,40 +22,42 @@
       ></ItemCard>
     </div>
 
-    <div
-      class="fixed bottom-32 left-1/2 transform -translate-x-1/2 flex gap-4 z-10"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
-        @click="goToPreviousPage"
+    <div class="flex w-full justify-start sm:justify-center">
+      <div
+        class="fixed bottom-32 ml-24 transform -translate-x-1/2 flex gap-4 z-10"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-      </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          @click="goToPreviousPage"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
 
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
-        @click="goToPreviousPage"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-      </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          @click="goToPreviousPage"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+      </div>
     </div>
 
     <ButtonAdd />
