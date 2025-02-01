@@ -3,9 +3,7 @@
     <div class="grid md:grid-cols-4 gap-4">
       <!-- Nome do item -->
       <div class="mb-4 col-span-2">
-        <label
-          for="name"
-          class="font-inter block text-azul text-sm font-bold mb-2"
+        <label for="name" class="font-inter block text-azul text-sm font-bold mb-2"
           >Item <span class="text-red-500">*</span></label
         >
         <input
@@ -20,9 +18,7 @@
 
       <!-- Categoria -->
       <div class="block relative mb-4 col-span-2">
-        <label
-          for="category"
-          class="font-inter block text-azul text-sm font-bold mb-2"
+        <label for="category" class="font-inter block text-azul text-sm font-bold mb-2"
           >Categoria <span class="text-red-500">*</span></label
         >
         <select
@@ -57,9 +53,7 @@
 
       <!-- Location -->
       <div class="block relative mb-4 col-span-2">
-        <label
-          for="location"
-          class="font-inter block text-azul text-sm font-bold mb-2"
+        <label for="location" class="font-inter block text-azul text-sm font-bold mb-2"
           >Local <span class="text-red-500">*</span></label
         >
         <select
@@ -94,11 +88,7 @@
 
       <!-- Color -->
       <div class="block relative mb-4 col-span-2">
-        <label
-          for="color"
-          class="font-inter block text-azul text-sm font-bold mb-2"
-          >Cor</label
-        >
+        <label for="color" class="font-inter block text-azul text-sm font-bold mb-2">Cor</label>
         <select
           id="color"
           class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
@@ -131,11 +121,7 @@
 
       <!-- Brand -->
       <div class="block relative mb-4 col-span-2">
-        <label
-          for="color"
-          class="font-inter block text-azul text-sm font-bold mb-2"
-          >Marca</label
-        >
+        <label for="color" class="font-inter block text-azul text-sm font-bold mb-2">Marca</label>
         <select
           id="brand"
           class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
@@ -168,9 +154,7 @@
 
       <!-- Data -->
       <div class="mb-4 col-span-2">
-        <label
-          for="foundDate"
-          class="font-inter block text-azul text-sm font-bold mb-2"
+        <label for="foundDate" class="font-inter block text-azul text-sm font-bold mb-2"
           >Data em que foi achado</label
         >
         <input
@@ -185,9 +169,7 @@
 
       <!-- Horário -->
       <div class="mb-4 col-span-2">
-        <label
-          for="foundTime"
-          class="font-inter block text-azul text-sm font-bold mb-2"
+        <label for="foundTime" class="font-inter block text-azul text-sm font-bold mb-2"
           >Horário em que foi achado</label
         >
         <input
@@ -202,10 +184,7 @@
 
       <!-- Descrição -->
       <div class="mb-4 col-span-2">
-        <label
-          for="description"
-          class="font-inter block text-azul text-sm font-bold mb-2"
-        >
+        <label for="description" class="font-inter block text-azul text-sm font-bold mb-2">
           Descrição
         </label>
         <textarea
@@ -223,9 +202,7 @@
         <label
           for="images"
           class="flex bg-azul text-white text-base px-5 py-3 outline-none rounded cursor-pointer font-inter"
-          :class="
-            item.images?.length > 1 ? 'opacity-50 cursor-not-allowed' : ''
-          "
+          :class="item.images?.length > 1 ? 'opacity-50 cursor-not-allowed' : ''"
         >
           <img src="../assets/icons/add-item-white.svg" alt="" class="mr-2" />
           Adicionar imagens
@@ -247,11 +224,7 @@
           class="w-64 h-64 border rounded relative"
         >
           <!-- Imagem de Pré-visualização -->
-          <img
-            :src="image"
-            alt="Preview"
-            class="w-full h-full object-cover rounded"
-          />
+          <img :src="image" alt="Preview" class="w-full h-full object-cover rounded" />
 
           <!-- Botão Remover -->
           <div
@@ -276,12 +249,7 @@
     </div>
   </form>
 
-  <Alert
-    v-if="submitError"
-    type="error"
-    :message="alertMessage"
-    @closed="submitError = false"
-  />
+  <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
 
   <Alert
     v-if="formSubmitted"

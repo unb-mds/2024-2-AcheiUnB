@@ -1,10 +1,7 @@
 <template>
   <!-- Header fixo no topo -->
-
   <div class="fixed w-full top-0" style="z-index: 1">
-    <ItemHeader
-      :title="itemStatus === 'found' ? 'Item Achado' : 'Item Perdido'"
-    />
+    <ItemHeader :title="itemStatus === 'found' ? 'Item Achado' : 'Item Perdido'" />
   </div>
 
   <!-- Conteúdo principal -->
@@ -54,11 +51,12 @@
       {{ item.description }}
     </p>
 
+    <!-- Botão para iniciar o chat -->
     <button
       class="w-full md:w-1/3 py-3 text-center text-white font-semibold rounded-lg bg-laranja hover:bg-laranja active:bg-laranja focus:ring-2 focus:ring-laranja"
-      @click="navigateToChat"
+      @click="startChat"
     >
-      {{ itemStatus === "found" ? "É meu item" : "Confirmar que é meu item" }}
+      {{ itemStatus === "found" ? "É meu item" : "Este item é meu" }}
     </button>
   </div>
 
@@ -89,12 +87,39 @@ const labels = ref([]);
 const route = useRoute();
 const router = useRouter();
 const idItem = route.query.idItem;
+const participant_2 = ref(null);
+const currentUser = ref({ id: null });
 
 async function fetchItem() {
   try {
+    console.log(`🔍 Buscando detalhes do item ID ${idItem}...`);
     item.value = await fetchOneItem(idItem);
 
     itemStatus.value = item.value.status === "found" ? "found" : "lost";
+
+    if (itemStatus.value === "found") {
+      participant_2.value = item.value.user_id;
+    } else {
+      participant_2.value = currentUser.value.id;
+    }
+
+    if (!participant_2.value) {
+      console.error("❌ Erro: Não foi possível obter o participant_2.");
+    } else {
+      console.log(`✅ participant_2 encontrado: ${participant_2.value}`);
+    }
+
+    if (itemStatus.value === "found") {
+      participant_2.value = response.data.user_id;
+    } else {
+      participant_2.value = currentUser.value.id;
+    }
+
+    if (!participant_2.value) {
+      console.error("❌ Erro: Não foi possível obter o participant_2.");
+    } else {
+      console.log(`✅ participant_2 encontrado: ${participant_2.value}`);
+    }
 
     if (item.value.location) {
       const locationResponse = await fetchOneLocation(item.value.location);
@@ -113,7 +138,7 @@ async function fetchItem() {
         fetchOneCategory(id).then((res) => ({
           name: res.name,
           type: "category",
-        }))
+        })),
       );
       const categories = await Promise.all(categoryPromises);
       labels.value.push(...categories);
@@ -135,9 +160,7 @@ async function fetchItem() {
 
 function viewMatches() {
   alert(
-    itemStatus.value === "found"
-      ? "Exibindo possíveis matches!"
-      : "Reportando possível match!"
+    itemStatus.value === "found" ? "Exibindo possíveis matches!" : "Reportando possível match!",
   );
 }
 
@@ -150,6 +173,48 @@ function navigateToChat() {
 }
 
 onMounted(fetchItem);
+async function fetchCurrentUser() {
+  try {
+    console.log("🔍 Buscando usuário logado...");
+    const response = await api.get(`/auth/user/`);
+    currentUser.value.id = response.data.id;
+    console.log("✅ Usuário logado:", response.data);
+  } catch (error) {
+    console.error("Erro ao buscar usuário logado:", error);
+  }
+}
+
+// 🚀 Criar o chatroom automaticamente e redirecionar
+async function startChat() {
+  try {
+    if (!participant_2.value || !currentUser.value.id) {
+      console.error("❌ Erro: participant_2 ou currentUser.id não definido.");
+      return;
+    }
+
+    console.log(
+      `🛠 Criando chatroom entre usuário ${currentUser.value.id} e ${participant_2.value}...`,
+    );
+    const chatResponse = await api.post("/chat/chatrooms/", {
+      participant_1: currentUser.value.id,
+      participant_2: participant_2.value,
+      item_id: idItem,
+    });
+
+    console.log("✅ Chatroom criado:", chatResponse.data);
+
+    // 🔀 Redireciona para o chat correto
+    router.push(`/chat/${chatResponse.data.id}`);
+  } catch (error) {
+    console.error("Erro ao criar chatroom:", error);
+  }
+}
+
+// ⏳ Carrega os dados quando o componente é montado
+onMounted(async () => {
+  await fetchCurrentUser();
+  await fetchItem();
+});
 </script>
 
 <style scoped></style>

@@ -2,13 +2,16 @@
   <form
     class="absolute flex items-center"
     :class="{
-      'fixed w-full top-6 pr-8 z-50': isActive && !isMediumOrLarger, 
-      'relative w-auto': !isActive || isMediumOrLarger, 
+      'fixed w-full top-6 pr-8 z-50': isActive && !isMediumOrLarger,
+      'relative w-auto': !isActive || isMediumOrLarger,
     }"
   >
     <!-- Botão de filtro -->
     <button
-      @click="toggleFilters(); toggleActive()"
+      @click="
+        toggleFilters();
+        toggleActive();
+      "
       class="absolute left-3 text-gray-500 hover:text-gray-700 transition-colors z-50"
       type="button"
     >
@@ -34,7 +37,10 @@
       type="text"
       @input="setSearchQuery(filtersState.searchQuery)"
       @focus="isActive = true"
-      @blur="isActive = false; showFilters = false"
+      @blur="
+        isActive = false;
+        showFilters = false;
+      "
     />
     <!-- Botão da lupa -->
     <button
@@ -71,7 +77,7 @@
         'w-fit mr-8': isActive && !isMediumOrLarger, // Estilo para telas pequenas
         'w-full': isMediumOrLarger, // Estilo para telas maiores
       }"
-      style="top: calc(50% - 4px);"
+      style="top: calc(50% - 4px)"
     >
       <!-- Filtros de Categorias -->
       <div class="flex gap-2 flex-wrap mt-4">
@@ -80,10 +86,12 @@
         <button
           v-for="(filter, index) in categories"
           :key="index"
-          @click="toggleFilter('category', index), setActiveCategory(filter.label)"
+          @click="(toggleFilter('category', index), setActiveCategory(filter.label))"
           :class="[
             'px-4 py-2 rounded-full border text-sm',
-            filter.active ? 'bg-laranja text-azul border-black' : 'bg-gray-200 text-azul border-black',
+            filter.active
+              ? 'bg-laranja text-azul border-black'
+              : 'bg-gray-200 text-azul border-black',
           ]"
         >
           {{ filter.label }}
@@ -98,10 +106,12 @@
         <button
           v-for="(filter, index) in locations"
           :key="index"
-          @click="toggleFilter('location',index), setActiveLocation(filter.label)"
+          @click="(toggleFilter('location', index), setActiveLocation(filter.label))"
           :class="[
             'px-4 py-2 rounded-full border text-sm',
-            filter.active ? 'bg-laranja text-azul border-black' : 'bg-gray-200 text-azul border-black',
+            filter.active
+              ? 'bg-laranja text-azul border-black'
+              : 'bg-gray-200 text-azul border-black',
           ]"
         >
           {{ filter.label }}
@@ -112,7 +122,12 @@
 </template>
 
 <script>
-import { filtersState, setSearchQuery, setActiveCategory, setActiveLocation } from "@/store/filters";
+import {
+  filtersState,
+  setSearchQuery,
+  setActiveCategory,
+  setActiveLocation,
+} from "@/store/filters";
 
 export default {
   name: "SearchBar",
@@ -163,7 +178,6 @@ export default {
     },
   },
   methods: {
-
     toggleActive() {
       this.isActive = !this.isActive;
     },
@@ -173,37 +187,35 @@ export default {
     },
 
     toggleFilter(type, index) {
-    if (type === "category") {
-      this.categories.forEach((filter, i) => {
-        if (i === index) {
-          filter.active = !filter.active;
-        } else {
-          filter.active = false;
-        }
-      });
-    } else if (type === "location") {
-      this.locations.forEach((filter, i) => {
-        if (i === index) {
-          filter.active = !filter.active;
-        } else {
-          filter.active = false;
-        }
-      });
-    }
-  },
+      if (type === "category") {
+        this.categories.forEach((filter, i) => {
+          if (i === index) {
+            filter.active = !filter.active;
+          } else {
+            filter.active = false;
+          }
+        });
+      } else if (type === "location") {
+        this.locations.forEach((filter, i) => {
+          if (i === index) {
+            filter.active = !filter.active;
+          } else {
+            filter.active = false;
+          }
+        });
+      }
+    },
 
-  // handleSearch() {
-  //   const query = this.searchQuery;
+    // handleSearch() {
+    //   const query = this.searchQuery;
 
-  //   const activeCategory = this.categories.find((filter) => filter.active);
-  //   const activeLocation = this.locations.find((filter) => filter.active);
+    //   const activeCategory = this.categories.find((filter) => filter.active);
+    //   const activeLocation = this.locations.find((filter) => filter.active);
 
-    
-  //   console.log("Pesquisa:", query);
-  //   console.log("Categoria selecionada:", activeCategory ? activeCategory.label : "Nenhuma");
-  //   console.log("Local selecionado:", activeLocation ? activeLocation.label : "Nenhum");
-  // },
-
+    //   console.log("Pesquisa:", query);
+    //   console.log("Categoria selecionada:", activeCategory ? activeCategory.label : "Nenhuma");
+    //   console.log("Local selecionado:", activeLocation ? activeLocation.label : "Nenhum");
+    // },
   },
 };
 </script>

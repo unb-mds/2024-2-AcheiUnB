@@ -23,8 +23,7 @@ export default {
     type: {
       type: String,
       default: "info",
-      validator: (value) =>
-        ["success", "error", "info", "warning"].includes(value),
+      validator: (value) => ["success", "error", "info", "warning"].includes(value),
     },
     message: {
       type: String,

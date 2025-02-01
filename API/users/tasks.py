@@ -1,13 +1,15 @@
+import os
 from datetime import timedelta
 
 import cloudinary.uploader
 from celery import shared_task
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
 
-from .models import Item, ItemImage
+from .models import Item, ItemImage, UserProfile
 
 
 @shared_task
@@ -29,6 +31,25 @@ def send_match_notification(to_email, item_name, matches):
 
 
 @shared_task
+def send_welcome_email(user_email, user_name):
+    """Task assíncrona para enviar o e-mail de boas-vindas."""
+    try:
+        subject = "Bem-vindo ao AcheiUnB!"
+        html_message = render_to_string("emails/welcome.html", {"name": user_name})
+        plain_message = strip_tags(html_message)
+
+        send_mail(
+            subject,
+            plain_message,
+            "acheiunb2024@gmail.com",
+            [user_email],
+            html_message=html_message,
+        )
+    except Exception as e:
+        print(f"Erro ao enviar o e-mail de boas-vindas: {e}")
+
+
+@shared_task
 def find_and_notify_matches_task(target_item_id, max_distance=2):
     from .match import find_and_notify_matches  # Importação atrasada para evitar ciclo
 
@@ -43,24 +64,53 @@ def find_and_notify_matches_task(target_item_id, max_distance=2):
 
 
 @shared_task
-def upload_images_to_cloudinary(item_id, images):
+def upload_images_to_cloudinary(object_id, images, object_type="item"):
     """Realiza o upload das imagens para o Cloudinary e salva as URLs no banco."""
+    cloudinary.config(
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.getenv("CLOUDINARY_API_KEY"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    )
     try:
-        item = Item.objects.get(id=item_id)
-    except Item.DoesNotExist:
+        if object_type == "item":
+            obj = Item.objects.get(id=object_id)
+        elif object_type == "user":
+            obj = UserProfile.objects.get(id=object_id)
+        else:
+            return
+    except ObjectDoesNotExist:
         return
 
     for image_content in images:
         try:
-            # Fazer o upload para o Cloudinary usando o conteúdo do arquivo
             upload_result = cloudinary.uploader.upload(image_content)
             image_url = upload_result.get("secure_url")
 
-            # Criar a entrada no banco para a imagem
-            ItemImage.objects.create(item=item, image_url=image_url)
+            if object_type == "item":
+                ItemImage.objects.create(item=obj, image_url=image_url)
+
+            elif object_type == "user":
+                obj.profile_picture = image_url
+                obj.save()
         except Exception as e:
-            # Logar o erro
-            print(f"Erro ao fazer upload de imagem para o item {item_id}: {e}")
+            print(f"Erro ao fazer upload de imagem para o objeto {object_id}: {e}")
+
+    # try:
+    #     item = Item.objects.get(id=item_id)
+    # except Item.DoesNotExist:
+    #     return
+
+    # for image_content in images:
+    #     try:
+    #         # Fazer o upload para o Cloudinary usando o conteúdo do arquivo
+    #         upload_result = cloudinary.uploader.upload(image_content)
+    #         image_url = upload_result.get("secure_url")
+
+    #         # Criar a entrada no banco para a imagem
+    #         ItemImage.objects.create(item=item, image_url=image_url)
+    #     except Exception as e:
+    #         # Logar o erro
+    #         print(f"Erro ao fazer upload de imagem para o item {item_id}: {e}")
 
 
 @shared_task
@@ -87,22 +137,3 @@ def delete_old_items_and_chats():
     old_items.delete()
 
     return f"{count} itens e seus chats vinculados foram excluídos."
-
-
-@shared_task
-def send_welcome_email(user_email, user_name):
-    """Task assíncrona para enviar o e-mail de boas-vindas."""
-    try:
-        subject = "Bem-vindo ao AcheiUnB!"
-        html_message = render_to_string("emails/welcome.html", {"name": user_name})
-        plain_message = strip_tags(html_message)
-
-        send_mail(
-            subject,
-            plain_message,
-            "acheiunb2024@gmail.com",
-            [user_email],
-            html_message=html_message,
-        )
-    except Exception as e:
-        print(f"Erro ao enviar o e-mail de boas-vindas: {e}")

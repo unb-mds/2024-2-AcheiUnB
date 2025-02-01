@@ -10,10 +10,25 @@
         class="w-[30px] h-[30px] text-white"
       />
     </router-link>
+  <div
+    class="fixed w-full top-0 h-[100px] bg-verde shadow-md rounded-b-xl flex items-center justify-between px-6 text-white z-10"
+  >
+    <!-- Botão de voltar -->
+    <router-link to="/user" class="inline-block">
+      <img
+        src="../assets/icons/arrow-left-white.svg"
+        alt="Voltar"
+        class="w-[30px] h-[30px] text-white"
+      />
+    </router-link>
 
     <!-- Título -->
     <h1 class="text-2xl font-bold text-center flex-1">Meus Itens</h1>
+    <!-- Título -->
+    <h1 class="text-2xl font-bold text-center flex-1">Meus Itens</h1>
 
+    <!-- Logo (Clicável para ir para /about) -->
+    <button>
     <!-- Logo (Clicável para ir para /about) -->
     <button>
       <router-link to="/about" class="no-underline text-white"

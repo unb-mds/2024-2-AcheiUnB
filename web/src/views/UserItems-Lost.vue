@@ -55,12 +55,7 @@
     </div>
 
     <!-- Alertas -->
-    <Alert
-      v-if="submitError"
-      type="error"
-      :message="alertMessage"
-      @closed="submitError = false"
-    />
+    <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
     <Alert
       v-if="formSubmitted"
       type="success"

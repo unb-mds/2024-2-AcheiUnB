@@ -22,9 +22,7 @@
       />
     </div>
 
-    <div
-      class="fixed bottom-32 left-1/2 transform -translate-x-1/2 flex gap-4 z-10"
-    >
+    <div class="fixed bottom-32 left-1/2 transform -translate-x-1/2 flex gap-4 z-10">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -111,15 +109,11 @@ const goToNextPage = () => {
 };
 
 watch(
-  () => [
-    filtersState.searchQuery,
-    filtersState.activeCategory,
-    filtersState.activeLocation,
-  ],
+  () => [filtersState.searchQuery, filtersState.activeCategory, filtersState.activeLocation],
   () => {
     currentPage.value = 1;
     fetchItems();
-  }
+  },
 );
 
 onMounted(() => fetchItems(currentPage.value));

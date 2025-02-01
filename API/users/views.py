@@ -2,11 +2,12 @@ import logging
 import os
 from datetime import datetime
 
+import cloudinary
 import cloudinary.uploader
 import requests
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from msal import ConfidentialClientApplication
@@ -29,7 +30,46 @@ from .serializers import (
     ItemSerializer,
     LocationSerializer,
 )
-from .tasks import find_and_notify_matches_task
+from .tasks import find_and_notify_matches_task, upload_images_to_cloudinary
+
+
+class UserListView(View):
+    """
+    Endpoint para listar todos os usuários e obter um usuário pelo ID.
+    """
+
+    def get(self, request, user_id=None):
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            profile = getattr(user, "profile", None)  # Obtém o perfil associado ao usuário
+            profile_picture = (
+                profile.profile_picture if profile else None
+            )  # Obtém a foto do perfil se existir
+
+            user_data = {
+                "id": user.id,
+                "first_name": user.first_name,
+                "email": user.email,
+                "foto": profile_picture,  # Agora pegando a foto do UserProfile
+            }
+            return JsonResponse(user_data, status=200)
+
+        # Buscar todos os usuários com suas fotos de perfil
+        users = User.objects.all()
+        users_data = [
+            {
+                "id": user.id,
+                "first_name": user.first_name,
+                "email": user.email,
+                "foto": getattr(
+                    user.profile, "profile_picture", None
+                ),  # Pegando a foto do perfil se existir
+            }
+            for user in users
+        ]
+
+        return JsonResponse(users_data, safe=False, status=200)
+
 
 # Configurações do MSAL
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
@@ -64,23 +104,24 @@ class ItemViewSet(ModelViewSet):
 
     def get_queryset(self):
 
-        status = None
+        self.request.query_params.get("status", None)
         if "found" in self.request.path:
-            status = "found"
+            return (
+                Item.objects.filter(status="found")
+                .select_related("category", "location", "color", "brand")
+                .prefetch_related("images")
+            )
         elif "lost" in self.request.path:
-            status = "lost"
+            return (
+                Item.objects.filter(status="lost")
+                .select_related("category", "location", "color", "brand")
+                .prefetch_related("images")
+            )
 
-        # Filtro inicial com status, se fornecido
-        queryset = Item.objects.all()
-        if status:
-            queryset = queryset.filter(status=status)
-
-        # Aplica seleções relacionadas e ordenação
-        return (
-            queryset.select_related("category", "location", "color", "brand")
-            .prefetch_related("images")
-            .order_by("-found_lost_date", "-created_at")
-        )
+        # Retorna todos os itens caso nenhum endpoint específico seja usado
+        return Item.objects.select_related(
+            "category", "location", "color", "brand"
+        ).prefetch_related("images")
 
     def get_paginated_response(self, data):
         total_found = Item.objects.filter(status="found").count()
@@ -218,7 +259,6 @@ class ItemImageViewSet(ModelViewSet):
                 {"error": f"Você pode adicionar no máximo {MAX_IMAGES} imagens por item."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         # Fazer upload da imagem para o Cloudinary.
         image_file = request.FILES.get("image")
 
@@ -245,19 +285,28 @@ class UserValidateView(APIView):
 
 
 class UserDetailView(APIView):
+    """
+    Retorna os detalhes do usuário autenticado.
+    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        social_account = SocialAccount.objects.filter(user=user, provider="microsoft").first()
+        request.headers.get("Authorization", "").replace(
+            "Bearer ", ""
+        )  # Pegando o token de acesso do usuário autenticado
+        logger.info(f"Usuário autenticado: {user.username} (ID: {user.id})")
 
-        # Extrai a matrícula e a foto do usuário(se disponivel)
-        if user.email and "@aluno.unb.br" in user.email:
-            matricula = user.email.split("@")[0]
-        else:
-            matricula = None
+        # Buscar foto do usuário no banco de dados (já salva no cloudinary)
+        try:
+            profile = UserProfile.objects.get(user=user)
+            foto_url = profile.profile_picture
+        except UserProfile.DoesNotExist:
+            foto_url = None
 
-        foto = social_account.extra_data.get("photo", None) if social_account else None
+        # Extrai a matrícula do e-mail
+        matricula = user.email.split("@")[0] if "@aluno.unb.br" in user.email else None
 
         user_data = {
             "id": user.id,
@@ -266,7 +315,7 @@ class UserDetailView(APIView):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "matricula": matricula,
-            "foto": foto,
+            "foto": foto_url,  # URL da foto no Cloudinary
         }
         return Response(user_data)
 
@@ -308,10 +357,17 @@ def save_or_update_user(user_data, access_token=None):
                 "date_joined": datetime.now(),
             },
         )
-        photo_url = get_and_save_user_photo(access_token, user.id)
-        profile, _ = UserProfile.objects.update_or_create(
-            user=user, defaults={"profile_picture": photo_url}
-        )
+        # Buscar a foto do usuário
+        try:
+            photo_blob = get_user_photo(access_token) if access_token else None
+        except Exception as e:
+            photo_blob = None
+            logger.error(f"Erro ao buscar a foto do usuário: {e}")
+
+        # Se houver uma foto, faça upload para o Cloudinary
+        if photo_blob:
+            upload_images_to_cloudinary.delay(user.id, [photo_blob], object_type="user")
+
         return user, created
     except Exception as e:
         raise Exception(f"Erro ao salvar ou atualizar o usuário: {e}")
@@ -468,47 +524,6 @@ def get_user_photo(access_token):
     )  # stream=True para trabalhar com blobs
     if response.status_code == 200:
         return response.content  # Retorna o blob da foto
-    else:
-        raise Exception(
-            f"Erro ao buscar a foto do usuário: {response.status_code} - {response.text}"
-        )
-
-
-def get_and_save_user_photo(access_token, user_id):
-    """
-    Busca o blob da foto do usuário na API Microsoft Graph e salva localmente.
-
-    :param access_token: Token de acesso do usuário.
-    :param user_id: ID único do usuário (usado para nomear o arquivo).
-    :return: URL do arquivo salvo ou None se a foto não estiver disponível.
-    """
-    if not access_token:
-        raise ValueError("O parâmetro access_token não foi fornecido para obter a foto.")
-
-    # Diretório onde as fotos serão salvas
-    MEDIA_DIR = "/home/pedroubu/Imagens/AcheiUnBFt/"
-    os.makedirs(MEDIA_DIR, exist_ok=True)  # Garante que o diretório existe
-
-    url = "https://graph.microsoft.com/v1.0/me/photo/$value"
-    headers = {"Authorization": f"Bearer {access_token}"}
-
-    response = requests.get(url, headers=headers, stream=True)
-
-    if response.status_code == 200:
-        # Nome do arquivo (usando o user_id)
-        file_path = os.path.join(MEDIA_DIR, f"{user_id}.jpg")
-
-        # Salva o blob como um arquivo local
-        with open(file_path, "wb") as photo_file:
-            for chunk in response.iter_content(chunk_size=8192):
-                photo_file.write(chunk)
-
-        # Gera a URL (ajuste conforme necessário)
-        file_url = f"/home/pedroubu/Imagens/AcheiUnBFt/{user_id}.jpg"
-        return file_url
-    elif response.status_code == 404:  # Foto não encontrada
-        logger.warning(f"Foto de perfil não encontrada para o usuário {user_id}.")
-        return None
     else:
         raise Exception(
             f"Erro ao buscar a foto do usuário: {response.status_code} - {response.text}"

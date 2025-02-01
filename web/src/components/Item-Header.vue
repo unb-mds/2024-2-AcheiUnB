@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="h-[100px] bg-verde shadow-md rounded-b-xl flex items-center text-white p-4 md:p-6"
-  >
+  <div class="h-[100px] bg-verde shadow-md rounded-b-xl flex items-center text-white p-4 md:p-6">
     <!-- Botão de Voltar -->
     <div class="flex items-center w-1/4">
       <img

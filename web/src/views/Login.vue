@@ -1,29 +1,17 @@
 <template>
-  <div
-    id="transition-screen"
-    class="fixed inset-0 flex items-center justify-center z-50"
-  >
+  <div id="transition-screen" class="fixed inset-0 flex items-center justify-center z-50">
     <div class="fixed inset-0 flex items-center justify-center z-50">
       <Logo customClass="text-azul" />
     </div>
   </div>
 
-  <div
-    id="main-content"
-    class="telaInteira bg-azul text-white p-4 min-h-screen hidden"
-  >
-    <div
-      class="titulo flex space-x-1 mt-20 mb-20 ml-8 md:flex md:justify-center md:mb-52"
-    >
+  <div id="main-content" class="telaInteira bg-azul text-white p-4 min-h-screen hidden">
+    <div class="titulo flex space-x-1 mt-20 mb-20 ml-8 md:flex md:justify-center md:mb-52">
       <Logo />
     </div>
-    <div
-      class="slogan max-w-72 ml-8 md:mr-8 md:max-w-none md:w-auto md:text-center"
-    >
+    <div class="slogan max-w-72 ml-8 md:mr-8 md:max-w-none md:w-auto md:text-center">
       <p class="text-5xl font-bold mb-4 md:text-6xl">Perdeu algo no campus?</p>
-      <p class="text-5xl italic font-light mb-4 md:text-6xl">
-        A gente te ajuda!
-      </p>
+      <p class="text-5xl italic font-light mb-4 md:text-6xl">A gente te ajuda!</p>
     </div>
 
     <div class="flex justify-center mt-52">

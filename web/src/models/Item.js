@@ -11,7 +11,7 @@ export default class Item {
     images = null,
     status = "",
     barcode = "",
-    requiredFields = ["name", "category", "location"]
+    requiredFields = ["name", "category", "location"],
   ) {
     this.user = user;
     this.name = name;

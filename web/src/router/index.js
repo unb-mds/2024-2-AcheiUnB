@@ -10,6 +10,7 @@ import Chats from "../views/Chats.vue";
 import ListItem from "../views/ListItem.vue";
 import UserItemsLost from "../views/UserItems-Lost.vue";
 import UserItemsFound from "../views/UserItems-Found.vue";
+import Message from "../views/Message.vue";
 import { validateToken } from "@/services/auth-api";
 
 const routes = [
@@ -75,6 +76,24 @@ const routes = [
     path: "/user-items-found",
     name: "UserItemsFound",
     component: UserItemsFound,
+  },
+  /*{
+    path: "/message",
+    name: "Message",
+    component: Message,
+  },*/
+  {
+    path: "/chat/new",
+    name: "NewChat",
+    component: Message, // A mesma tela de chat será usada para criar um novo chat
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/chat/:chatroomId",
+    name: "Chat",
+    component: Message,
+    meta: { requiresAuth: true },
+    props: true, // Permite passar o `chatroomId` como propriedade
   },
   { path: "/:catchAll(.*)", name: "NotFound", component: Login },
 ];
