@@ -79,6 +79,8 @@ import { fetchOneLocation } from "@/services/location-api";
 import { fetchOneCategory } from "@/services/category-api";
 import { fetchOneColor } from "@/services/color-api";
 import { fetchOneBrand } from "@/services/brand-api";
+import { fetchUserData } from "@/services/auth-api";
+import { createChatroom } from "@/services/chat-api";
 
 const item = ref(null);
 const itemStatus = ref("");
@@ -176,15 +178,14 @@ onMounted(fetchItem);
 async function fetchCurrentUser() {
   try {
     console.log("🔍 Buscando usuário logado...");
-    const response = await api.get(`/auth/user/`);
-    currentUser.value.id = response.data.id;
-    console.log("✅ Usuário logado:", response.data);
+    const userData = await fetchUserData();
+    currentUser.value.id = user.id;
+    console.log("✅ Usuário logado:", userData);
   } catch (error) {
     console.error("Erro ao buscar usuário logado:", error);
   }
 }
 
-// 🚀 Criar o chatroom automaticamente e redirecionar
 async function startChat() {
   try {
     if (!participant_2.value || !currentUser.value.id) {
@@ -195,22 +196,17 @@ async function startChat() {
     console.log(
       `🛠 Criando chatroom entre usuário ${currentUser.value.id} e ${participant_2.value}...`,
     );
-    const chatResponse = await api.post("/chat/chatrooms/", {
-      participant_1: currentUser.value.id,
-      participant_2: participant_2.value,
-      item_id: idItem,
-    });
 
-    console.log("✅ Chatroom criado:", chatResponse.data);
+    const chatResponse = await createChatroom(currentUser.value.id, participant_2.value, idItem);
 
-    // 🔀 Redireciona para o chat correto
+    console.log("✅ Chatroom criado:", chatResponse);
+
     router.push(`/chat/${chatResponse.data.id}`);
   } catch (error) {
     console.error("Erro ao criar chatroom:", error);
   }
 }
 
-// ⏳ Carrega os dados quando o componente é montado
 onMounted(async () => {
   await fetchCurrentUser();
   await fetchItem();

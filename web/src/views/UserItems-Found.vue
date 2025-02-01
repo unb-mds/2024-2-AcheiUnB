@@ -10,25 +10,10 @@
         class="w-[30px] h-[30px] text-white"
       />
     </router-link>
-  <div
-    class="fixed w-full top-0 h-[100px] bg-verde shadow-md rounded-b-xl flex items-center justify-between px-6 text-white z-10"
-  >
-    <!-- Botão de voltar -->
-    <router-link to="/user" class="inline-block">
-      <img
-        src="../assets/icons/arrow-left-white.svg"
-        alt="Voltar"
-        class="w-[30px] h-[30px] text-white"
-      />
-    </router-link>
 
     <!-- Título -->
     <h1 class="text-2xl font-bold text-center flex-1">Meus Itens</h1>
-    <!-- Título -->
-    <h1 class="text-2xl font-bold text-center flex-1">Meus Itens</h1>
 
-    <!-- Logo (Clicável para ir para /about) -->
-    <button>
     <!-- Logo (Clicável para ir para /about) -->
     <button>
       <router-link to="/about" class="no-underline text-white"
@@ -63,12 +48,11 @@
   </div>
 
   <!-- Alertas -->
-  <Alert
-    v-if="submitError"
-    type="error"
-    :message="alertMessage"
-    @closed="submitError = false"
-  />
+  <<<<<<< HEAD
+  <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
+  =======
+  <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
+  >>>>>>> 2ce3d4c83a6c5e6c74c5080f060dfa116ce646cf
   <Alert
     v-if="formSubmitted"
     type="success"
@@ -79,7 +63,11 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+<<<<<<< HEAD
 import { fetchMyItemsFound, deleteItem } from "@/services/item-api";
+=======
+import { fetchMyItemsFound, deleteItem } from "@/services/apiItems";
+>>>>>>> 2ce3d4c83a6c5e6c74c5080f060dfa116ce646cf
 import { formatTime } from "@/utils/dateUtils";
 import MainMenu from "../components/Main-Menu.vue";
 import SubMenu from "../components/Sub-Menu-UserFound.vue";
@@ -115,9 +103,13 @@ const confirmDelete = (itemId) => {
 const handleDelete = async (itemId) => {
   try {
     await deleteItem(itemId); // Chama o serviço para deletar o item no backend
+<<<<<<< HEAD
     myItemsFound.value = myItemsFound.value.filter(
       (item) => item.id !== itemId
     ); // Atualiza a lista removendo o item excluído
+=======
+    myItemsFound.value = myItemsFound.value.filter((item) => item.id !== itemId); // Atualiza a lista removendo o item excluído
+>>>>>>> 2ce3d4c83a6c5e6c74c5080f060dfa116ce646cf
     alertMessage.value = "Item deletado com sucesso.";
     formSubmitted.value = true;
   } catch (error) {
