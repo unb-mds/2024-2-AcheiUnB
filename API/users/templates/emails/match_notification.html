@@ -52,7 +52,7 @@
           </p>
           <p><strong>Data:</strong> {{ match.found_lost_date|date:"d/m/Y"|default:'Não especificada' }}</p>
           <a
-            href="http://localhost:8000/#/list-item?idItem={{match.id}}"
+            href="{{SITE_URL}}/#/list-item?idItem={{match.id}}"
             style="
               display: inline-block;
               background-color: #1a237e;

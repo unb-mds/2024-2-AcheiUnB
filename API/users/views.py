@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-
+from django.conf import settings
 import cloudinary
 import cloudinary.uploader
 import requests
@@ -79,6 +79,7 @@ REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI")
 SCOPES = ["User.Read"]
 logger = logging.getLogger(__name__)
 User = get_user_model()
+site_url = settings.SITE_URL
 
 
 class FoundItemPagination(PageNumberPagination):
@@ -421,7 +422,7 @@ def microsoft_callback(request):
             str(refresh)
 
             # Configurar cookies seguros
-            response = HttpResponseRedirect("http://localhost:8000/#/found")
+            response = HttpResponseRedirect("f{site_url}/#/found")
             response.set_cookie(
                 key="access_token",
                 value=jwt_access,
