@@ -1,5 +1,4 @@
 {% load static %}
-{% load vite_tags %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -7,17 +6,16 @@
   <meta charset="UTF-8"/>
   <link rel="icon" type="image/png" href="{% static 'dist/assets/Favicon-DZaE_dAz.png' %}"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UnB</title>
-  <!-- Carrega automaticamente o CSS certo -->
-  <link rel="stylesheet" href="{% vite_asset 'index.html' 'css' %}"/> 
-  <!-- Observe acima que pegamos o 'src/main.js' do manifest, 
-       mas na verdade, se o manifest listar CSS separado, pode estar em outro lugar. 
-       Leia o JSON para saber as chaves exatas. -->
+  <title>AcheiUnB</title>
+
+  <!-- Corrigindo a referência do CSS -->
+  <link rel="stylesheet" href="{% static 'dist/assets/index-B1GrIbV2.css' %}"/>
 
 </head>
 <body>
   <div id="app"></div>
-  <!-- Carrega automaticamente o JS certo -->
-  <script src="{% vite_asset 'index.html' 'js' %}"></script>
+
+  <!-- Corrigindo a referência do JavaScript -->
+  <script src="{% static 'dist/js/index-D8Kmtj3d.js' %}"></script>
 </body>
 </html>
