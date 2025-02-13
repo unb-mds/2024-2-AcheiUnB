@@ -18,9 +18,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-%7=()&6sxvzdq68n)q^8n)g6#kw8p=45v)(hp^t%@*e4ty=##u"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+
+ALLOWED_HOSTS = ["achadoseperdidos.lappis.rocks", "www.achadoseperdidos.lappis.rocks", "localhost", "127.0.0.1"]
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# 🔹 Configuração do CSRF e CORS
+CSRF_TRUSTED_ORIGINS = ["https://achadoseperdidos.lappis.rocks"]
+CORS_ALLOWED_ORIGINS = ["https://achadoseperdidos.lappis.rocks"]
+
 AUTH_USER_MODEL = "auth.User"
 MEDIA_URL = "/media/"  # Prefixo da URL para os arquivos
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Diretório onde os arquivos serão salvos
@@ -239,7 +249,7 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0
 CELERY_BEAT_SCHEDULE = {
     "delete_old_items_and_chats": {
         "task": "users.tasks.delete_old_items_and_chats",
-        "schedule": crontab(hour=3, minute=0),  # Executar todos os dias às 3h da manhã
+        "schedule": crontab(hour=3, minute=0),
     },
 }
 
