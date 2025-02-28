@@ -7,7 +7,7 @@ line-length = 95
 extend-exclude = ['migrations', '__pycache__', 'users/apps.py',]
 select = ['I', 'F', 'E', 'W', 'PL', 'PT']
 preview = true
-ignore = ["PLR2004", 'F821']  
+ignore = ["PLR2004", 'F821', 'F403']  
 
 [tool.ruff.flake8-quotes]
 inline-quotes = 'single'
