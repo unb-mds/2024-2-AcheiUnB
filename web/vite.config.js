@@ -16,7 +16,7 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  base: "static/dist/",
+  base: "/static/dist/",
   build: {
     outDir: path.resolve(__dirname, "../API/AcheiUnB/static/dist"),
     manifest: true,
