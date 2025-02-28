@@ -120,7 +120,7 @@ function animateButton() {
 
 function redirectToLoginMicrosoft() {
   window.location.href =
-    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=f1b79927-10ff-4601-a361-f9cab58fb250&scope=User.Read&response_type=code&state=Zay5NfY4tSn7JgvO&domain=alunos.unb.br";
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=30194d95-b341-485e-8b37-cffcfc553414&scope=User.Read&response_type=code&state=Zay5NfY4tSn7JgvO&domain=alunos.unb.br";
 }
 </script>
 

@@ -23,9 +23,9 @@
         :name="item.name"
         :location="item.location_name"
         :time="formatTime(item.created_at)"
-        :image="item.image_urls[0] || NotAvailableImage"
+        :image="item.image_urls?.[0] ?? NotAvailableImage"
         :id="item.id"
-      ></ItemCard>
+      />
     </div>
 
     <div v-if="foundItems.length" class="flex w-full justify-start sm:justify-center">
@@ -36,7 +36,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:size-12"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
           @click="goToPreviousPage"
         >
           <path
@@ -90,18 +90,28 @@ const totalPages = ref(1);
 const loading = ref(true);
 
 const fetchItems = async (page = 1) => {
-  const { searchQuery, activeCategory, activeLocation } = filtersState;
+  try {
+    loading.value = true;
+    const { searchQuery, activeCategory, activeLocation } = filtersState;
 
-  const response = await fetchFoundItems({
-    page,
-    search: searchQuery,
-    category_name: activeCategory,
-    location_name: activeLocation,
-  });
+    const response = await fetchFoundItems({
+      page,
+      search: searchQuery,
+      category_name: activeCategory,
+      location_name: activeLocation,
+    });
 
-  foundItems.value = response.results;
-  totalPages.value = Math.ceil(response.count / 27);
-  loading.value = false;
+    if (response.count !== undefined) {
+      foundItems.value = response.results;
+      totalPages.value = Math.ceil(response.count / 27);
+    } else {
+      console.error("Resposta da API inválida:", response);
+    }
+  } catch (error) {
+    console.error("Erro ao buscar itens:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const goToPreviousPage = () => {
@@ -123,10 +133,8 @@ watch(
   () => {
     currentPage.value = 1;
     fetchItems();
-  },
+  }
 );
 
 onMounted(() => fetchItems(currentPage.value));
 </script>
-
-<style scoped></style>
