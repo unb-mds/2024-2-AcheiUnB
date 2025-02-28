@@ -23,7 +23,7 @@
         :name="item.name"
         :location="item.location_name"
         :time="formatTime(item.created_at)"
-        :image="item.image_urls[0] || NotAvailableImage"
+        :image="item.image_urls?.[0] ?? NotAvailableImage"
         :id="item.id"
       />
     </div>
@@ -90,18 +90,28 @@ const totalPages = ref(1);
 const loading = ref(true);
 
 const fetchItems = async (page = 1) => {
-  const { searchQuery, activeCategory, activeLocation } = filtersState;
+  try {
+    loading.value = true;
+    const { searchQuery, activeCategory, activeLocation } = filtersState;
 
-  const response = await fetchLostItems({
-    page,
-    search: searchQuery,
-    category_name: activeCategory,
-    location_name: activeLocation,
-  });
+    const response = await fetchLostItems({
+      page,
+      search: searchQuery,
+      category_name: activeCategory,
+      location_name: activeLocation,
+    });
 
-  lostItems.value = response.results;
-  totalPages.value = Math.ceil(response.count / 27);
-  loading.value = false;
+    if (response && response.results && response.count !== undefined) {
+      lostItems.value = response.results;
+      totalPages.value = Math.ceil(response.count / 27);
+    } else {
+      console.error("Resposta da API inválida:", response);
+    }
+  } catch (error) {
+    console.error("Erro ao buscar itens:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const goToPreviousPage = () => {
@@ -123,7 +133,7 @@ watch(
   () => {
     currentPage.value = 1;
     fetchItems();
-  },
+  }
 );
 
 onMounted(() => fetchItems(currentPage.value));

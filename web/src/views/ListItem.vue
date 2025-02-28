@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed w-full top-0 z-[1]" v-if="isLoaded">
+  <div class="fixed w-full top-0 z-[1]" v-if="isLoaded && item">
     <ItemHeader
       :title="itemStatus === 'found' ? 'Item Achado' : 'Item Perdido'"
       :userId="currentUser.id"
@@ -10,7 +10,7 @@
 
   <div
     class="px-6 py-[120px] min-h-screen flex flex-col justify-center items-center gap-6 mt-3"
-    v-if="item"
+    v-if="isLoaded && item"
   >
     <div class="w-full md:flex md:gap-8 md:max-w-4xl">
       <div class="w-full max-w-md md:max-w-none md:w-1/2 relative">
@@ -134,7 +134,7 @@
     </div>
 
     <button
-      v-if="currentUser.id != item.user_id"
+      v-if="currentUser?.id !== item.user_id"
       class="bg-laranja text-white w-full md:w-[70%] lg:w-[40%] font-medium py-4 rounded-full hover:scale-110 transition-transform duration-300 text-center text-lg lg:text-xl"
       @click="handleChat"
     >
@@ -143,7 +143,7 @@
     </button>
 
     <button
-      v-if="currentUser.id == item.user_id"
+      v-else-if="currentUser?.id === item.user_id"
       class="bg-red-500 text-white w-full md:w-[70%] lg:w-[40%] font-medium py-4 rounded-full hover:scale-110 transition-transform duration-300 text-center text-lg lg:text-xl"
       @click="confirmDelete(item.id)"
     >
@@ -181,12 +181,9 @@ const submitError = ref(false);
 
 const isLoaded = ref(false);
 
-// Função para confirmar exclusão
 const confirmDelete = async (itemId) => {
-  console.log(itemStatus.value);
-  console.log(item.value.id);
   try {
-    await deleteItem(itemId); // Chama a API para excluir o item
+    await deleteItem(itemId);
     router.push(`/${itemStatus.value}`);
   } catch (error) {
     console.error("Erro ao excluir item:", error);
@@ -207,10 +204,12 @@ const formatDateTime = (dateString) => {
 };
 
 const nextImage = () => {
+  if (!item.value?.image_urls?.length) return;
   activeIndex.value = (activeIndex.value + 1) % item.value.image_urls.length;
 };
 
 const prevImage = () => {
+  if (!item.value?.image_urls?.length) return;
   activeIndex.value =
     (activeIndex.value - 1 + item.value.image_urls.length) % item.value.image_urls.length;
 };
