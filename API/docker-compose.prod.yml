@@ -1,0 +1,107 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:8080 AcheiUnB.wsgi:application
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    expose:
+      - "8080"  # Expõe a porta 8080 apenas para outros serviços no Docker Compose
+    environment:
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - REDIS_URL=redis://redis:6379/0
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+      - celery
+
+  nginx:
+    image: nginx:1.21
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+      - ./certs:/etc/nginx/certs # Monta o arquivo de configuração do Nginx
+      - static_volume:/app/staticfiles  # Compartilha o volume de arquivos estáticos com o Nginx
+    ports:
+      - "8080:8080"  # Expõe a porta 80 para o host
+    depends_on:
+      - web
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A AcheiUnB worker --loglevel=info
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A AcheiUnB beat --loglevel=info
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+volumes:
+  static_volume:
+  postgres_data:
