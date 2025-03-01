@@ -16,8 +16,6 @@ RUN mkdir -p /var/log/django
 
 COPY . /app/
 
-RUN python manage.py collectstatic --noinput
-
 EXPOSE 8080
 
 COPY --chmod=755 entrypoint.sh /app/entrypoint.sh
