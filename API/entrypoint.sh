@@ -8,15 +8,16 @@ black .
 echo "Executando Ruff para verificar a formatação do código..."
 ruff . --fix
 
-if [ "$1" = "python" ] && [ "$2" = "manage.py" ]; then
-  echo "Gerando novas migrações..."
-  python manage.py makemigrations 
+echo "Coletando arquivos estáticos..."
+python manage.py collectstatic --noinput --clear
 
-  echo "Iniciando migrações do banco de dados..."
-  python manage.py migrate 
+echo "Gerando novas migrações..."
+python manage.py makemigrations --noinput  
 
-  echo "Migrações concluídas."
-fi
+echo "Aplicando migrações ao banco de dados..."
+python manage.py migrate --noinput  
+
+echo "Migrações concluídas."
 
 # Executa o comando recebido
 exec "$@"
