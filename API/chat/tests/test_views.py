@@ -42,6 +42,70 @@ from users.models import Item
         in response.data"""
 
 
+class ChatRoomViewSetTests(APITestCase):
+    def setUp(self):
+        # Criando usuários
+        self.user1 = User.objects.create_user(
+            username="user1", email="user1@example.com", password="password1"
+        )
+        self.user2 = User.objects.create_user(
+            username="user2", email="user2@example.com", password="password2"
+        )
+
+        # Criando um item de teste
+        self.item = Item.objects.create(name="Carteira Perdida", user=self.user1)
+
+        # Definindo a URL da API
+        self.url = "/api/chat/chatrooms/"
+
+        # Autenticando o primeiro usuário
+        self.client.force_authenticate(user=self.user1)
+
+    # def test_create_chatroom_success(self):
+    #     """Teste para criação bem-sucedida de uma sala de chat entre dois usuários"""
+    #     data = {"participant_2": self.user2.id, "item_id": self.item.id}
+    #     response = self.client.post(self.url, data, format="json")
+
+    #     print("Response Data:", response.data)  # <--- Adicionado para depuração
+    #     assert response.status_code == status.HTTP_201_CREATED
+
+    def test_create_chatroom_missing_fields(self):
+        """Teste para erro ao tentar criar uma sala de chat sem os campos obrigatórios"""
+        response = self.client.post(self.url, {}, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Os campos participant_2 e item são obrigatórios." in str(response.data)
+
+    def test_create_chatroom_with_self(self):
+        """Teste para erro ao tentar criar uma sala de chat consigo mesmo"""
+        data = {"participant_2": self.user1.id, "item_id": self.item.id}
+        response = self.client.post(self.url, data, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Não é possível criar um chat consigo mesmo." in str(response.data)
+
+    def test_create_chatroom_with_nonexistent_item(self):
+        """Teste para erro ao tentar criar uma sala de chat com um item inexistente"""
+        data = {"participant_2": self.user2.id, "item_id": 99999}  # ID de item que não existe
+        response = self.client.post(self.url, data, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "O item associado não foi encontrado." in str(response.data)
+
+    def test_create_chatroom_when_already_exists(self):
+        """Teste para retornar a sala de chat existente se já houver uma criada"""
+        # Criando a sala de chat inicialmente
+        chatroom = ChatRoom.objects.create(
+            participant_1=self.user1, participant_2=self.user2, item=self.item
+        )
+
+        data = {"participant_2": self.user2.id, "item_id": self.item.id}
+        response = self.client.post(self.url, data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert ChatRoom.objects.count() == 1  # Apenas uma sala deve existir
+        assert response.data["id"] == chatroom.id  # Deve retornar o chatroom existente
+
+
 class MessageViewSetTests(APITestCase):
 
     def setUp(self):
