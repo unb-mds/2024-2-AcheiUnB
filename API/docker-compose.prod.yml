@@ -29,6 +29,17 @@ services:
       - redis
       - celery
 
+  websocket:
+    build:
+      context: ./websocket-server
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - web
+
+
   nginx:
     image: nginx:1.21
     volumes:
