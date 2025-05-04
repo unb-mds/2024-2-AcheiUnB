@@ -11,13 +11,17 @@ ruff . --fix
 echo "Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput --clear
 
-echo "Gerando novas migrações..."
-python manage.py makemigrations --noinput  
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Gerando novas migrações..."
+    python manage.py makemigrations --noinput  
 
-echo "Aplicando migrações ao banco de dados..."
-python manage.py migrate --noinput  
+    echo "Aplicando migrações ao banco de dados..."
+    python manage.py migrate --noinput  
 
-echo "Migrações concluídas."
+    echo "Migrações concluídas."
+else
+    echo "Não executando migrações neste serviço."
+fi
 
 # Executa o comando recebido
 exec "$@"

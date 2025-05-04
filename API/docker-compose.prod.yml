@@ -12,6 +12,7 @@ services:
     expose:
       - "8080"  # Expõe a porta 8080 apenas para outros serviços no Docker Compose
     environment:
+      - RUN_MIGRATIONS=true
       - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -79,6 +80,7 @@ services:
       - redis
       - db
     environment:
+      - RUN_MIGRATIONS=false
       - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
       - CELERY_BROKER_URL=redis://redis:6379/0
       - DB_NAME=${DB_NAME}
@@ -102,6 +104,7 @@ services:
       - redis
       - db
     environment:
+      - RUN_MIGRATIONS=false
       - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
       - CELERY_BROKER_URL=redis://redis:6379/0
       - DB_NAME=${DB_NAME}
