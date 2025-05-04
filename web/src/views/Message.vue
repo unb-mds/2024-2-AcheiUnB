@@ -71,6 +71,7 @@ import { useRoute } from "vue-router";
 import api from "../services/api";
 import HeaderMessage from "@/components/Header-Message.vue";
 import Alert from "@/components/Alert.vue";
+import { io } from "socket.io-client";
 
 const route = useRoute();
 const messages = ref([]);
@@ -84,11 +85,66 @@ const submitError = ref(false);
 const chatroomId = ref(route.params.chatroomId || route.query.chatroomId);
 const itemId = ref(route.params.itemId || route.query.itemId);
 
+const socket = ref(null);
+
+const connectWebSocket = () => {
+  const WS_URL = import.meta.env.VITE_WS_URL;
+
+  socket.value = io(WS_URL, {
+    transports: ["websocket"],
+    path: "/socket.io/", // caminho padrão do socket.io, seu nginx já está configurado para /socket.io/
+    query: { chatroomId: chatroomId.value }
+  });
+
+  socket.value.on("connect", () => {
+    console.log("Socket.IO conectado:", socket.value.id);
+  });
+
+  socket.value.on("receive_message", (data) => {
+    console.log("Nova mensagem recebida via Socket.IO:", data);
+    messages.value.push(data);
+    scrollToBottom();
+  });
+
+  socket.value.on("disconnect", () => {
+    console.warn("Socket.IO desconectado.");
+  });
+
+  socket.value.on("connect_error", (err) => {
+    console.error("Erro ao conectar no Socket.IO:", err);
+  });
+};
+
+
 if (!chatroomId.value) {
   console.error("ID do chat não encontrado na rota");
 } else {
   console.log("chatroomId:", chatroomId.value);
 }
+
+// const sendMessage = async () => {
+//   if (!chatroomId.value) {
+//     console.error("ID do chat não encontrado, não é possível enviar mensagem");
+//     return;
+//   }
+//   if (!messageContent.value.trim()) {
+//     console.warn("Mensagem vazia, nada a enviar");
+//     return;
+//   }
+  
+//   try {
+//     console.log("Enviando mensagem para room:", chatroomId.value, "Conteúdo:", messageContent.value);
+//     // Chama a API para enviar a mensagem
+//     await api.post("/chat/messages/", {
+//       room: chatroomId.value,
+//       content: messageContent.value
+//     });
+//     messageContent.value = "";
+//     await fetchMessages();
+//   } catch (error) {
+//     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
+//   }
+// };
 
 const sendMessage = async () => {
   if (!chatroomId.value) {
@@ -99,19 +155,37 @@ const sendMessage = async () => {
     console.warn("Mensagem vazia, nada a enviar");
     return;
   }
+
+  const conteudo = messageContent.value.trim();
+
   try {
-    console.log("Enviando mensagem para room:", chatroomId.value, "Conteúdo:", messageContent.value);
-    // Chama a API para enviar a mensagem
-    await api.post("/chat/messages/", {
+    console.log("Enviando mensagem para room:", chatroomId.value, "Conteúdo:", conteudo);
+
+    // Primeiro, salva no banco de dados via API REST
+    const response = await api.post("/chat/messages/", {
       room: chatroomId.value,
-      content: messageContent.value
+      content: conteudo
     });
+
+    const mensagemSalva = response.data;
+
+    // Agora, envia a mensagem pelo Socket.IO
+    if (socket.value && socket.value.connected) {
+      socket.value.emit("send_message", mensagemSalva);
+    } else {
+      console.warn("Socket.IO não está conectado. Mensagem salva no banco, mas não enviada em tempo real.");
+    }
+
     messageContent.value = "";
     await fetchMessages();
+
   } catch (error) {
     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
+    alertMessage.value = "Erro ao enviar mensagem.";
+    submitError.value = true;
   }
 };
+
 
 const fetchMessages = async () => {
   if (!chatroomId.value) return;
@@ -170,6 +244,16 @@ const fetchChatroomData = async () => {
     console.error("Erro ao buscar dados do chatroom:", error);
   }
 };
+const messagesContainer = ref(null);
+
+
+const scrollToBottom = () => {
+  const container = messagesContainer.value;
+  if (container) {
+    container.scrollTop = container.scrollHeight;
+  }
+};
+
 
 
 onMounted(async () => {
@@ -178,6 +262,7 @@ onMounted(async () => {
   await fetchReceiverId();
   await fetchChatroomData();
   await fetchMessages();
+  connectWebSocket();
 });
 </script>
 

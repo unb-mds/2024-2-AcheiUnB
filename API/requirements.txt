@@ -30,3 +30,4 @@ pytest
 pytest-django
 pytest-cov
 drf-yasg
+gunicorn

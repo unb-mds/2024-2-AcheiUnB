@@ -1,7 +1,7 @@
 import api from "./api";
 import { filtersState } from "@/store/filters";
 
-const API_BASE_URL = "http://localhost:8000/api/items";
+const API_BASE_URL = `${import.meta.env.VITE_URL_PROD}/api/items`;
 
 // Função para buscar itens perdidos com filtros opcionais
 export const fetchLostItems = async ({

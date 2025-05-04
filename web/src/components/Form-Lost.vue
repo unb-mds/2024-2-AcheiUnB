@@ -1264,7 +1264,7 @@ export default {
           this.formSubmitted = true;
         }
         setTimeout(() => {
-          window.location.replace(`http://localhost:8000/#/lost`);
+          window.location.replace(`${import.meta.env.VITE_URL_PROD}/#/lost`);
         }, 2050);
       } catch (error) {
         this.alertMessage = "Erro ao publicar item.";

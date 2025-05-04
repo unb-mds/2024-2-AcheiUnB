@@ -7,8 +7,10 @@ import cloudinary.uploader
 from celery.schedules import crontab
 from decouple import config
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+if os.getenv("DJANGO_SETTINGS_MODULE") == "AcheiUnB.settings_production":
+    from .settings_production import *
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-%7=()&6sxvzdq68n)q^8n)g6#kw8p=45v)(hp^t%@*e4ty=##u"
 
@@ -142,9 +144,9 @@ DATABASES = {
 
 
 cloudinary.config(
-    cloud_name=config("CLOUDINARY_CLOUD_NAME"),
-    api_key=config("CLOUDINARY_API_KEY"),
-    api_secret=config("CLOUDINARY_API_SECRET"),
+    CLOUDINARY_CLOUD_NAME=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    CLOUDINARY_API_KEY=os.getenv("CLOUDINARY_API_KEY"),
+    CLOUDINARY_API_SECRET=os.getenv("CLOUDINARY_API_SECRET"),
 )
 
 
@@ -187,10 +189,10 @@ CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = "/static/"
 
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "AcheiUnB/static/dist"),
 ]
-
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -200,7 +202,7 @@ LOGOUT_REDIRECT_URL = ""
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 LANGUAGE_CODE = "pt-br"
 
-
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"

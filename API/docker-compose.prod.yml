@@ -1,32 +1,56 @@
+version: "3.8"
+
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn --bind 0.0.0.0:8080 AcheiUnB.wsgi:application
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+      - static_volume:/app/staticfiles
+    expose:
+      - "8080"  # Expõe a porta 8080 apenas para outros serviços no Docker Compose
     environment:
       - RUN_MIGRATIONS=true
-      - REDIS_URL=redis://redis:6379/0
-      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings
-      - PYTHONUNBUFFERED=1
-      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}
-      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - REDIS_URL=redis://redis:6379/0
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-    depends_on:
-      - db
     env_file:
       - .env
+    depends_on:
+      - db
+      - redis
+      - celery
+
+  websocket:
+    build:
+      context: ./websocket-server
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - web
+
+
+  nginx:
+    image: nginx:1.21
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+      - ./certs:/etc/nginx/certs # Monta o arquivo de configuração do Nginx
+      - static_volume:/app/staticfiles  # Compartilha o volume de arquivos estáticos com o Nginx
+    ports:
+      - "8080:8080"  # Expõe a porta 80 para o host
+    depends_on:
+      - web
 
   db:
     image: postgres:15
@@ -57,8 +81,8 @@ services:
       - db
     environment:
       - RUN_MIGRATIONS=false
-      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
+      - CELERY_BROKER_URL=redis://redis:6379/0
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -81,8 +105,8 @@ services:
       - db
     environment:
       - RUN_MIGRATIONS=false
-      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - DJANGO_SETTINGS_MODULE=AcheiUnB.settings_production
+      - CELERY_BROKER_URL=redis://redis:6379/0
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -91,7 +115,7 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      
 
 volumes:
+  static_volume:
   postgres_data:

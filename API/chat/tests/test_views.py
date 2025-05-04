@@ -5,7 +5,8 @@ from rest_framework.test import APITestCase
 from chat.models import ChatRoom, Message
 from users.models import Item
 
-"""class ChatRoomViewSetTests(APITestCase):
+
+class ChatRoomViewSetTests(APITestCase):
 
     def setUp(self):
         self.user1 = User.objects.create_user(username="user1", password="password")
@@ -31,15 +32,46 @@ from users.models import Item
         )
 
         data = {
-            "participant_1": self.user1.id,
             "participant_2": self.user2.id,
             "item_id": self.item.id,
         }
         response = self.client.post("/api/chat/chatrooms/", data)
 
+        assert response.status_code == status.HTTP_200_OK
+        # O que o código realmente retorna é o chat existente
+        assert response.data["participant_1"] == self.user1.id
+        assert response.data["participant_2"] == self.user2.id
+        assert response.data["item_id"] == self.item.id
+
+    def test_create_chat_missing_fields(self):
+        # participant_2 e item_id faltando
+        data = {}
+        response = self.client.post("/api/chat/chatrooms/", data)
+
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "Já existe um chat para este item com os mesmos participantes."
-        in response.data"""
+        assert "Os campos participant_2 e item são obrigatórios." in str(response.data)
+
+    def test_create_chat_with_self(self):
+        data = {
+            "participant_1": self.user1.id,
+            "participant_2": self.user1.id,
+            "item_id": self.item.id,
+        }
+        response = self.client.post("/api/chat/chatrooms/", data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "Não é possível criar um chat consigo mesmo." in str(response.data)
+
+    def test_create_chat_with_invalid_item(self):
+        data = {
+            "participant_1": self.user1.id,
+            "participant_2": self.user2.id,
+            "item_id": 9999,  # ID de item que não existe
+        }
+        response = self.client.post("/api/chat/chatrooms/", data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "O item associado não foi encontrado." in str(response.data)
 
 
 class MessageViewSetTests(APITestCase):
@@ -75,6 +107,58 @@ class MessageViewSetTests(APITestCase):
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data["results"]) == 2
+
+    def test_send_empty_message_fails(self):
+        data = {
+            "room": self.chat_room.id,
+            "content": "",  # Conteúdo vazio
+        }
+        response = self.client.post("/api/chat/messages/", data)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "content" in response.data
+
+    def test_send_message_unauthenticated_fails(self):
+        self.client.logout()
+        data = {
+            "room": self.chat_room.id,
+            "content": "Mensagem sem estar logado",
+        }
+        response = self.client.post("/api/chat/messages/", data)
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_get_messages_pagination(self):
+        for i in range(15):
+            Message.objects.create(
+                room=self.chat_room, sender=self.user1, content=f"Mensagem {i}"
+            )
+
+        response = self.client.get(f"/api/chat/messages/?room={self.chat_room.id}")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "results" in response.data
+        assert len(response.data["results"]) == 15
+
+    def test_get_queryset_filters_by_room(self):
+        other_item = Item.objects.create(name="Carteira", status="found")
+        other_chat = ChatRoom.objects.create(
+            participant_1=self.user1, participant_2=self.user2, item=other_item
+        )
+
+        msg1 = Message.objects.create(
+            room=self.chat_room, sender=self.user1, content="Mensagem na sala 1"
+        )
+        msg2 = Message.objects.create(
+            room=other_chat, sender=self.user2, content="Mensagem na sala 2"
+        )
+
+        response = self.client.get(f"/api/chat/messages/?room={self.chat_room.id}")
+
+        assert response.status_code == status.HTTP_200_OK
+        returned_ids = [msg["id"] for msg in response.data["results"]]
+        assert msg1.id in returned_ids
+        assert msg2.id not in returned_ids
 
 
 class ClearChatsViewTests(APITestCase):

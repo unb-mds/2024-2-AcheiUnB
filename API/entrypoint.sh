@@ -3,19 +3,24 @@
 set -e
 
 echo "Executando Black para formatar o código..."
-black .  # Executa o Black para formatar o código
+black .  
 
 echo "Executando Ruff para verificar a formatação do código..."
 ruff . --fix
 
-if [ "$1" = "python" ] && [ "$2" = "manage.py" ]; then
-  echo "Gerando novas migrações..."
-  python manage.py makemigrations  # Cria novas migrações com base nos modelos
+echo "Coletando arquivos estáticos..."
+python manage.py collectstatic --noinput --clear
 
-  echo "Iniciando migrações do banco de dados..."
-  python manage.py migrate  # Executa o migrate automaticamente
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Gerando novas migrações..."
+    python manage.py makemigrations --noinput  
 
-  echo "Migrações concluídas."
+    echo "Aplicando migrações ao banco de dados..."
+    python manage.py migrate --noinput  
+
+    echo "Migrações concluídas."
+else
+    echo "Não executando migrações neste serviço."
 fi
 
 # Executa o comando recebido

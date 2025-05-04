@@ -6,3 +6,6 @@ __pycache__/
 secrets.env
 API/media/
 start.sh
+API/staticfiles
+API/AcheiUnB/static/dist/
+API/websocket-server/node_modules

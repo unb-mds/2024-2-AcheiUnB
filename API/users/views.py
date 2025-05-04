@@ -96,8 +96,8 @@ class UserListView(View):
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
 AUTHORITY = os.getenv("AUTHORITY")
-REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI")
-SCOPES = ["User.Read"]
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+SCOPES = ["User.Read", "email"]
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
@@ -489,7 +489,7 @@ def microsoft_callback(request):
             jwt_access = str(refresh.access_token)
             str(refresh)
 
-            response = HttpResponseRedirect("http://localhost:8000/#/found")
+            response = HttpResponseRedirect("https://localhost:8080/#/found")
             response.set_cookie(
                 key="access_token",
                 value=jwt_access,
