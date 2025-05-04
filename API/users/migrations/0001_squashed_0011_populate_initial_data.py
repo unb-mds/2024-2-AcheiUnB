@@ -11,7 +11,6 @@ from django.db import migrations, models
 # users.migrations.0011_populate_initial_data
 
 
-
 def create_categories(apps, schema_editor):
     Category = apps.get_model("users", "Category")
     categories = [
@@ -248,124 +247,242 @@ def create_brands(apps, schema_editor):
         Brand.objects.get_or_create(name=brand, brand_id=brand_id)  # A ID é '00' para 'Outra'
 
 
-
-
 class Migration(migrations.Migration):
 
-    replaces = [('users', '0001_initial'), ('users', '0002_category_remove_item_image_item_color_and_more'), ('users', '0003_userprofile'), ('users', '0003_brand_color_alter_item_description_item_brand_and_more'), ('users', '0004_merge_20241229_1953'), ('users', '0005_location_alter_item_location'), ('users', '0006_remove_item_is_valuable'), ('users', '0007_item_barcode'), ('users', '0008_alter_item_category_alter_item_location'), ('users', '0009_item_matches_alter_item_status'), ('users', '0010_item_matches_alter_item_status'), ('users', '0011_populate_initial_data')]
+    replaces = [
+        ("users", "0001_initial"),
+        ("users", "0002_category_remove_item_image_item_color_and_more"),
+        ("users", "0003_userprofile"),
+        ("users", "0003_brand_color_alter_item_description_item_brand_and_more"),
+        ("users", "0004_merge_20241229_1953"),
+        ("users", "0005_location_alter_item_location"),
+        ("users", "0006_remove_item_is_valuable"),
+        ("users", "0007_item_barcode"),
+        ("users", "0008_alter_item_category_alter_item_location"),
+        ("users", "0009_item_matches_alter_item_status"),
+        ("users", "0010_item_matches_alter_item_status"),
+        ("users", "0011_populate_initial_data"),
+    ]
 
     initial = True
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
-    
+
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('category_id', models.CharField(max_length=10, unique=True)),
-            ],
-        ),
-
-
-        migrations.CreateModel(
-            name='Item',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True, max_length=250)),
-                ('category', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.category')),
-                ('location', models.CharField(max_length=100)),
-                ('is_valuable', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('color', models.CharField(blank=True, choices=[('Red', 'Vermelho'), ('Blue', 'Azul'), ('Green', 'Verde'), ('Black', 'Preto'), ('White', 'Branco'), ('Other', 'Outro')], max_length=10)),
-                ('found_lost_date', models.DateTimeField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('found', 'Achado'), ('lost', 'Perdido')], default='lost', max_length=10)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                ("category_id", models.CharField(max_length=10, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ItemImage',
+            name="Item",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image_url', models.URLField()),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='users.item')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True, max_length=250)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="users.category",
+                    ),
+                ),
+                ("location", models.CharField(max_length=100)),
+                ("is_valuable", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Red", "Vermelho"),
+                            ("Blue", "Azul"),
+                            ("Green", "Verde"),
+                            ("Black", "Preto"),
+                            ("White", "Branco"),
+                            ("Other", "Outro"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("found_lost_date", models.DateTimeField(blank=True, null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("found", "Achado"), ("lost", "Perdido")],
+                        default="lost",
+                        max_length=10,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Brand',
+            name="ItemImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('brand_id', models.CharField(max_length=2, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("image_url", models.URLField()),
+                (
+                    "item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="users.item",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Color',
+            name="Brand",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('color_id', models.CharField(max_length=2, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                ("brand_id", models.CharField(max_length=2, unique=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name="Color",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                ("color_id", models.CharField(max_length=2, unique=True)),
             ],
         ),
         migrations.AddField(
-            model_name='item',
-            name='brand',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.brand'),
+            model_name="item",
+            name="brand",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="users.brand",
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='color',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.color'),
+            model_name="item",
+            name="color",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="users.color",
+            ),
         ),
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('location_id', models.CharField(max_length=2, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("location_id", models.CharField(max_length=2, unique=True)),
             ],
         ),
         migrations.RemoveField(
-            model_name='item',
-            name='is_valuable',
+            model_name="item",
+            name="is_valuable",
         ),
         migrations.AddField(
-            model_name='item',
-            name='barcode',
+            model_name="item",
+            name="barcode",
             field=models.CharField(blank=True, editable=False, max_length=10),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='category',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='users.category'),
+            model_name="item",
+            name="category",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="users.category",
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='location',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='users.location'),
+            model_name="item",
+            name="location",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="users.location",
+            ),
         ),
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('profile_picture', models.URLField(blank=True, null=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
-                ('welcome_email_sent', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("profile_picture", models.URLField(blank=True, null=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                ("welcome_email_sent", models.BooleanField(default=False)),
             ],
         ),
         migrations.AddField(
-            model_name='item',
-            name='matches',
-            field=models.ManyToManyField(blank=True, related_name='matched_with', to='users.item'),
+            model_name="item",
+            name="matches",
+            field=models.ManyToManyField(
+                blank=True, related_name="matched_with", to="users.item"
+            ),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='status',
-            field=models.CharField(choices=[('found', 'Found'), ('lost', 'Lost')], default='lost', max_length=10),
+            model_name="item",
+            name="status",
+            field=models.CharField(
+                choices=[("found", "Found"), ("lost", "Lost")], default="lost", max_length=10
+            ),
         ),
         migrations.RunPython(create_categories),
         migrations.RunPython(create_locations),
