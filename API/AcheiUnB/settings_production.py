@@ -126,8 +126,8 @@ LOGGING = {
         },
     },
 }
-LOGOUT_REDIRECT_URL = "https://10.0.0.96:8080/#/"  # Para desenvolvimento
+LOGOUT_REDIRECT_URL = "https://acheiunb.com.br/#/"  # Para desenvolvimento
 # LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
 # LOGOUT_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/"  # Para produção
 # LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
-LOGIN_REDIRECT_URL = "https://10.0.0.96:8080/#/lost"  # Para produção
+LOGIN_REDIRECT_URL = "https://acheiunb.com.br/#/lost"  # Para produção
