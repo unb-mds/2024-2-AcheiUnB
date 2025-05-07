@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["achadoseperdidos.lappis.rocks", "acheiunb.com.br", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["achadoseperdidos.lappis.rocks", "acheiunb.com.br", "localhost", "127.0.0.1", "10.0.0.96"]
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.admin",
@@ -92,6 +92,7 @@ SECRET_KEY = "django-insecure-%7=()&6sxvzdq68n)q^8n)g6#kw8p=45v)(hp^t%@*e4ty=##u
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:8080",
     "https://127.0.0.1:8080",
+    "https://10.0.0.96:8080",
 ]
 CORS_ALLOW_CREDENTIALS = True  # Permite cookies na autenticação
 CORS_ALLOW_HEADERS = ["*"]
@@ -99,6 +100,8 @@ CORS_ALLOW_METHODS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8080",
     "https://127.0.0.1:8080",
+    "https://10.0.0.96:8080",
+
 ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -123,7 +126,8 @@ LOGGING = {
         },
     },
 }
-LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
+LOGOUT_REDIRECT_URL = "https://10.0.0.96:8080/#/"  # Para desenvolvimento
+# LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
 # LOGOUT_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/"  # Para produção
-LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
-# LOGIN_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/lost"  # Para produção
+# LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
+LOGIN_REDIRECT_URL = "https://10.0.0.96:8080/#/lost"  # Para produção
