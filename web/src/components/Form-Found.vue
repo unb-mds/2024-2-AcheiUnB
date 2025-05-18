@@ -1090,7 +1090,7 @@ export default {
         },
         {
           id: 25,
-          name: "Oaklay",
+          name: "Oakley",
           brand_id: "25",
         },
         {

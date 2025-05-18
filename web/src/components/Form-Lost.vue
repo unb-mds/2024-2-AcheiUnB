@@ -247,11 +247,13 @@
       <div class="col-span-4">
         <button
           type="button"
-          @click="save"
-          class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full"
+          @click.once="save"
+          :disabled="isSubmitting"
+          class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Enviar
-        </button>
+          {{ isSubmitting ? "Enviando..." : "Enviar" }}
+</button>
+
       </div>
     </div>
   </form>
@@ -267,10 +269,12 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import Form from "../models/Form";
 import Item from "../models/Item";
 import Alert from "./Alert.vue";
 import api from "../services/api";
+let isBlocked = false;
 
 export default {
   name: "FormComponent",
@@ -284,6 +288,8 @@ export default {
       submitError: false,
       formSubmitted: false,
       alertMessage: "",
+      isSubmitting: false,
+
       categories: [
         {
           id: 1,
@@ -1078,7 +1084,7 @@ export default {
         },
         {
           id: 25,
-          name: "Oaklay",
+          name: "Oakley",
           brand_id: "25",
         },
         {
@@ -1225,13 +1231,19 @@ export default {
   },
   methods: {
     async save() {
-      this.item.status = "lost";
+      if (isBlocked || this.isSubmitting) return;
+        this.isSubmitting = true;
+        this.alertMessage = '';
+        this.submitError = false;
 
+      this.item.status = "lost";
       const form = new Form(this.item);
 
       if (!form.validate()) {
         this.alertMessage = "Verifique os campos marcados com *.";
         this.submitError = true;
+        this.isSubmitting = false
+        isBlocked = false;
         return;
       }
 
@@ -1261,14 +1273,19 @@ export default {
           this.formSubmitted = true;
         } else {
           await api.post("/items/", formData);
-          this.formSubmitted = true;
         }
+        this.formSubmitted = true;
+
         setTimeout(() => {
           window.location.replace(`${import.meta.env.VITE_URL_PROD}/#/lost`);
         }, 2050);
       } catch (error) {
         this.alertMessage = "Erro ao publicar item.";
         this.submitError = true;
+      }
+      finally {
+      this.isSubmitting = false;
+      isBlocked = false;
       }
     },
 
