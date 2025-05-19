@@ -5,7 +5,7 @@ Django==5.1.4
 idna==3.10
 psycopg2-binary==2.9.10
 requests==2.32.3
-setuptools==75.5.0
+setuptools==78.1.1
 sqlparse==0.5.1
 urllib3>=1.26.5,<2
 Pillow
