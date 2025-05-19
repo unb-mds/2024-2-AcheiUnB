@@ -247,8 +247,8 @@
       <div class="col-span-4">
         <button
           type="button"
-          @click.once="save"
-          :disabled="isSubmitting"
+          @click="save"
+          :disabled="isSubmitting || formSubmitted"
           class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ isSubmitting ? "Enviando..." : "Enviar" }}
@@ -274,7 +274,6 @@ import Form from "../models/Form";
 import Item from "../models/Item";
 import Alert from "./Alert.vue";
 import api from "../services/api";
-let isBlocked = false;
 
 export default {
   name: "FormComponent",
@@ -1231,7 +1230,7 @@ export default {
   },
   methods: {
     async save() {
-      if (isBlocked || this.isSubmitting) return;
+      if (this.isSubmitting) return;
         this.isSubmitting = true;
         this.alertMessage = '';
         this.submitError = false;
@@ -1243,7 +1242,6 @@ export default {
         this.alertMessage = "Verifique os campos marcados com *.";
         this.submitError = true;
         this.isSubmitting = false
-        isBlocked = false;
         return;
       }
 
@@ -1285,7 +1283,6 @@ export default {
       }
       finally {
       this.isSubmitting = false;
-      isBlocked = false;
       }
     },
 
