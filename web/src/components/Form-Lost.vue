@@ -92,7 +92,7 @@
 
       <div class="block relative mb-4 col-span-2">
         <label for="color" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Cor <span class="text-red-500">*</span>
+          Cor
         </label>
         <div class="relative">
           <input
@@ -129,7 +129,7 @@
 
       <div class="block relative mb-4 col-span-2">
         <label for="brand" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Marca <span class="text-red-500">*</span>
+          Marca
         </label>
         <div class="relative">
           <input
@@ -244,6 +244,7 @@
         </div>
       </div>
 
+
       <div class="col-span-4">
         <button
           type="button"
@@ -251,9 +252,9 @@
           :disabled="isSubmitting || formSubmitted"
           class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ isSubmitting ? "Enviando..." : "Enviar" }}
-</button>
+        {{ isSubmitting ? "Enviando..." : (editMode ? "Salvar Alterações" : "Enviar") }}
 
+        </button>
       </div>
     </div>
   </form>
