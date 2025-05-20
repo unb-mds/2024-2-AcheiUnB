@@ -1326,7 +1326,7 @@ export default {
         this.submitError = true;
       }
       finally {
-      this.isSubmitting = true;
+        this.isSubmitting = false;
       }
     },
 
