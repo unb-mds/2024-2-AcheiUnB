@@ -48,7 +48,7 @@ services:
       - ./certs:/etc/nginx/certs # Monta o arquivo de configuração do Nginx
       - static_volume:/app/staticfiles  # Compartilha o volume de arquivos estáticos com o Nginx
     ports:
-      - "8080:8080"  # Expõe a porta 80 para o host
+      - "80:80"  # Expõe a porta 80 para o host
     depends_on:
       - web
 

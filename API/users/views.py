@@ -489,7 +489,7 @@ def microsoft_callback(request):
             jwt_access = str(refresh.access_token)
             str(refresh)
 
-            response = HttpResponseRedirect("https://localhost:8080/#/found")
+            response = HttpResponseRedirect("https://acheiunb.com.br/#/found")
             response.set_cookie(
                 key="access_token",
                 value=jwt_access,
