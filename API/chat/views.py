@@ -8,6 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from chat.models import ChatRoom, Message
 from users.models import Item
+from users.pagination import ChatPagination
 
 from .serializers import ChatRoomSerializer, MessageSerializer
 
@@ -67,6 +68,7 @@ class MessageViewSet(ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = ChatPagination
 
     @swagger_auto_schema(
         operation_description="Lista todas as mensagens de uma sala de chat específica.",
