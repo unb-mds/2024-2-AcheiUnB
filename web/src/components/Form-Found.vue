@@ -1,7 +1,6 @@
 <template>
   <form id="app" @submit="save">
     <div class="grid md:grid-cols-4 gap-4">
-      <!-- Nome do item -->
       <div class="mb-4 col-span-2">
         <label for="name" class="font-inter block text-azul text-sm font-bold mb-2"
           >Item <span class="text-red-500">*</span></label
@@ -17,7 +16,6 @@
         />
       </div>
 
-      <!-- Categoria -->
       <div class="block relative mb-4 col-span-2">
         <label for="category" class="font-inter block text-azul text-sm font-bold mb-2">
           Categoria <span class="text-red-500">*</span>
@@ -55,7 +53,6 @@
         </div>
       </div>
 
-      <!-- Location -->
       <div class="block relative mb-4 col-span-2">
         <label for="location" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
           Localização <span class="text-red-500">*</span>
@@ -93,10 +90,9 @@
         </div>
       </div>
 
-      <!-- Color -->
       <div class="block relative mb-4 col-span-2">
         <label for="color" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Cor <span class="text-red-500">*</span>
+          Cor
         </label>
         <div class="relative">
           <input
@@ -131,10 +127,9 @@
         </div>
       </div>
 
-      <!-- Brand -->
       <div class="block relative mb-4 col-span-2">
         <label for="brand" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Marca <span class="text-red-500">*</span>
+          Marca
         </label>
         <div class="relative">
           <input
@@ -169,7 +164,6 @@
         </div>
       </div>
 
-      <!-- Data -->
       <div class="mt-4 mb-4 col-span-2">
         <label for="foundDate" class="font-inter block text-azul text-sm font-bold mb-2"
           >Data em que foi achado</label
@@ -184,7 +178,6 @@
         />
       </div>
 
-      <!-- Horário -->
       <div class="mb-4 col-span-2">
         <label for="foundTime" class="font-inter block text-azul text-sm font-bold mb-2"
           >Horário em que foi achado</label
@@ -199,7 +192,6 @@
         />
       </div>
 
-      <!-- Descrição -->
       <div class="mb-4 col-span-2">
         <label for="description" class="font-inter block text-azul text-sm font-bold mb-2">
           Descrição
@@ -216,7 +208,6 @@
       </div>
 
       <div>
-        <!-- Upload de arquivo -->
         <label
           for="images"
           class="flex bg-azul text-white text-base px-5 py-3 outline-none rounded cursor-pointer font-inter"
@@ -236,7 +227,6 @@
       </div>
 
       <div class="flex flex-wrap gap-4 col-span-3">
-        <!-- Loop de Imagens -->
         <div
           v-for="(image, index) in previews"
           :key="index"
@@ -245,7 +235,6 @@
           <!-- Imagem de Pré-visualização -->
           <img :src="image" alt="Preview" class="w-full h-full object-cover rounded" />
 
-          <!-- Botão Remover -->
           <div
             class="absolute p-1 bottom-2 border-2 border-laranja right-2 w-12 h-12 bg-white flex items-center justify-center text-xs rounded-full cursor-pointer"
             @click="removeImage(index)"
@@ -254,15 +243,14 @@
           </div>
         </div>
       </div>
-
-      <!-- Enviar -->
       <div class="col-span-4">
         <button
           type="button"
           @click="save"
+          :disabled="isSubmitting || formSubmitted"
           class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full"
         >
-          {{ editMode ? "Salvar Alterações" : "Enviar" }}
+        {{ isSubmitting ? "Enviando..." : (editMode ? "Salvar Alterações" : "Enviar") }}
         </button>
       </div>
     </div>
@@ -296,6 +284,8 @@ export default {
       submitError: false,
       formSubmitted: false,
       alertMessage: "",
+      isSubmitting: false,
+
       categories: [
         {
           id: 1,
@@ -1090,7 +1080,7 @@ export default {
         },
         {
           id: 25,
-          name: "Oaklay",
+          name: "Oakley",
           brand_id: "25",
         },
         {
@@ -1280,13 +1270,18 @@ export default {
       }
     },
     async save() {
-      this.item.status = "found";
+    if (this.isSubmitting) return;
+        this.isSubmitting = true;
+        this.alertMessage = '';
+        this.submitError = false;
 
+      this.item.status = "found";
       const form = new Form(this.item);
 
       if (!form.validate()) {
         this.alertMessage = "Verifique os campos marcados com *.";
         this.submitError = true;
+        this.isSubmitting = false
         return;
       }
 
@@ -1298,7 +1293,6 @@ export default {
       const formData = form.toFormData();
 
       if (this.imagesToRemove.length > 0) {
-        // Envia múltiplos IDs repetindo a chave "remove_images"
         this.imagesToRemove.forEach((id) => formData.append("remove_images", id));
       }
 
@@ -1315,9 +1309,11 @@ export default {
           });
 
           this.formSubmitted = true;
-          for (let pair of formData.entries()) {
+
+          /*for (let pair of formData.entries()) {
             console.log(pair[0], pair[1]);
-          }
+          }*/
+
         } else {
           await api.post("/items/", formData);
           this.formSubmitted = true;
@@ -1328,6 +1324,9 @@ export default {
       } catch (error) {
         this.alertMessage = "Erro ao publicar item.";
         this.submitError = true;
+      }
+      finally {
+        this.isSubmitting = false;
       }
     },
 
@@ -1378,10 +1377,8 @@ export default {
         this.item.images.splice(newIndex, 1);
       }
 
-      // Atualiza a lista de previews corretamente
       this.previews.splice(index, 1);
 
-      // Verifica se agora há menos de 2 imagens para reativar o botão de adicionar
       this.$forceUpdate();
       this.$refs.fileInput.value = "";
     },

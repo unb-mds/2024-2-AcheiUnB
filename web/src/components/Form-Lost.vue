@@ -92,7 +92,7 @@
 
       <div class="block relative mb-4 col-span-2">
         <label for="color" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Cor <span class="text-red-500">*</span>
+          Cor
         </label>
         <div class="relative">
           <input
@@ -129,7 +129,7 @@
 
       <div class="block relative mb-4 col-span-2">
         <label for="brand" class="font-inter block text-azul text-sm font-bold mb-2 mt-4">
-          Marca <span class="text-red-500">*</span>
+          Marca
         </label>
         <div class="relative">
           <input
@@ -244,13 +244,16 @@
         </div>
       </div>
 
+
       <div class="col-span-4">
         <button
           type="button"
           @click="save"
-          class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full"
+          :disabled="isSubmitting || formSubmitted"
+          class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Enviar
+        {{ isSubmitting ? "Enviando..." : (editMode ? "Salvar Alterações" : "Enviar") }}
+
         </button>
       </div>
     </div>
@@ -267,6 +270,7 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import Form from "../models/Form";
 import Item from "../models/Item";
 import Alert from "./Alert.vue";
@@ -284,6 +288,8 @@ export default {
       submitError: false,
       formSubmitted: false,
       alertMessage: "",
+      isSubmitting: false,
+
       categories: [
         {
           id: 1,
@@ -1078,7 +1084,7 @@ export default {
         },
         {
           id: 25,
-          name: "Oaklay",
+          name: "Oakley",
           brand_id: "25",
         },
         {
@@ -1225,13 +1231,18 @@ export default {
   },
   methods: {
     async save() {
-      this.item.status = "lost";
+      if (this.isSubmitting) return;
+        this.isSubmitting = true;
+        this.alertMessage = '';
+        this.submitError = false;
 
+      this.item.status = "lost";
       const form = new Form(this.item);
 
       if (!form.validate()) {
         this.alertMessage = "Verifique os campos marcados com *.";
         this.submitError = true;
+        this.isSubmitting = false
         return;
       }
 
@@ -1261,14 +1272,18 @@ export default {
           this.formSubmitted = true;
         } else {
           await api.post("/items/", formData);
-          this.formSubmitted = true;
         }
+        this.formSubmitted = true;
+
         setTimeout(() => {
           window.location.replace(`${import.meta.env.VITE_URL_PROD}/#/lost`);
         }, 2050);
       } catch (error) {
         this.alertMessage = "Erro ao publicar item.";
         this.submitError = true;
+      }
+      finally {
+      this.isSubmitting = false;
       }
     },
 
