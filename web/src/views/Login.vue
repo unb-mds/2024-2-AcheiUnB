@@ -7,22 +7,22 @@
 
   <div
     id="main-content"
-    class="flex flex-col lg:flex-row bg-azul text-white p-4 min-h-screen hidden"
+    class="flex flex-col lg:flex-row bg-azul text-white p-4 min-h-screen hidden items-center justify-center lg:justify-between"
   >
-    <div>
-      <div class="titulo flex space-x-1 mt-20 mb-16 ml-12 md:ml-0 md:flex md:ml-12 md:mb-24">
+    <div class="flex flex-col items-center lg:items-start w-full max-w-2xl px-4">
+      <div class="titulo flex justify-center lg:justify-start w-full mt-20 mb-16">
         <Logo />
       </div>
-      <div class="slogan max-w-72 ml-12 md:mr-8 md:max-w-none md:w-auto">
-        <p class="text-5xl font-bold mb-7 md:text-5xl fade-in">Perdeu algo no campus?</p>
-        <p class="text-5xl italic font-thin mb-4 md:text-5xl fade-in">A gente te ajuda!</p>
+      <div class="slogan text-center lg:text-left mb-24">
+        <p class="text-5xl font-bold mb-7 fade-in">Perdeu algo no campus?</p>
+        <p class="text-5xl italic font-thin mb-4 fade-in">A gente te ajuda!</p>
       </div>
 
-      <div class="flex mt-24">
+      <div class="flex justify-center lg:justify-start w-full">
         <button
           ref="animatedButton"
           @click="redirectToLoginMicrosoft"
-          class="flex items-center rounded-full bg-gray-50 px-10 py-4 md:px-24 md:py-5 text-azul ring-1 ring-inset ring-gray-500/10 ml-12 shadow-sm transition transform transition duration-300 hover:scale-105"
+          class="flex items-center rounded-full bg-gray-50 px-10 py-4 md:px-24 md:py-5 text-azul ring-1 ring-inset ring-gray-500/10 shadow-sm transition transform transition duration-300 hover:scale-105"
         >
           <img
             src="../assets/icons/Microsoft_logo2.svg"
@@ -30,7 +30,7 @@
             class="h-6 w-auto mr-4"
           />
           <span class="font-bold font-inter text-lg md:text-xl">
-            Entre com a conta da Microsoft
+            Entrar com e-mail da UnB
           </span>
         </button>
       </div>
@@ -38,10 +38,10 @@
 
     <div
       v-if="foundItems.length"
-      class="relative flex flex-col items-center w-full max-w-xl mx-auto p-6 rounded-lg lg:ml-10 mt-10 min-h-screen lg:min-h-full bg-azul"
+class="relative flex flex-col items-center w-full max-w-4xl px-4 mt-16 lg:mt-10 lg:ml-10"
       @click="animateButton()"
     >
-      <div class="grid grid-cols-2 gap-8 flex-grow">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full justify-items-center">
         <ItemCard
           v-for="item in foundItems"
           :key="item.id"
