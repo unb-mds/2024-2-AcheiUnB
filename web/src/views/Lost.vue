@@ -10,7 +10,7 @@
 
     <EmptyState
       v-if="!loading && lostItems.length === 0"
-      message="está sem itens perdidos... Você pode adicionar um!"
+      type ="perdido"
     />
 
     <div
