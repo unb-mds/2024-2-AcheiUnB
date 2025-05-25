@@ -10,7 +10,7 @@
 
     <EmptyState
       v-if="!loading && foundItems.length === 0"
-      message="está sem itens achados... Você pode adicionar um!"
+      type ="achado"
     />
 
     <div

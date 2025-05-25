@@ -8,6 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from chat.models import ChatRoom, Message
 from users.models import Item
+from users.pagination import ChatPagination
+from users.tasks import delete_old_messages
 
 from .serializers import ChatRoomSerializer, MessageSerializer
 
@@ -67,6 +69,7 @@ class MessageViewSet(ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = ChatPagination
 
     @swagger_auto_schema(
         operation_description="Lista todas as mensagens de uma sala de chat específica.",
@@ -83,8 +86,8 @@ class MessageViewSet(ModelViewSet):
     def get_queryset(self):
         room_id = self.request.query_params.get("room")
         if room_id:
-            return Message.objects.filter(room_id=room_id)
-        return super().get_queryset()
+            return Message.objects.filter(room_id=room_id).order_by("timestamp")
+        return super().get_queryset().order_by("timestamp")
 
     @swagger_auto_schema(
         operation_description="Envia uma nova mensagem em uma sala de chat.",
@@ -103,7 +106,8 @@ class MessageViewSet(ModelViewSet):
         responses={201: openapi.Response("Mensagem enviada", MessageSerializer)},
     )
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+        message = serializer.save(sender=self.request.user)
+        delete_old_messages.delay(message.room_id)
 
 
 class ClearChatsView(APIView):
