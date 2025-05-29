@@ -20,10 +20,17 @@
       <div v-for="message in messages" :key="message.id" class="mb-2 flex">
         
         <div v-if="message.sender === currentUser?.id" class="flex w-full justify-end">
-          <div class="bg-laranja text-white p-3 rounded-2xl max-w-[70%] break-words shadow-md">
+          <div class="bg-laranja text-white p-3 rounded-2xl max-w-[70%] break-words shadow-md relative">
             <p class="text-sm">{{ message.content }}</p>
             <span class="text-xs opacity-75 mt-1 block text-right">
               {{ formatTime(message.timestamp) }}
+              <!-- Indicador de leitura -->
+              <span v-if="receiverId && message.is_read && message.is_read.includes(receiverId)" title="Lida pelo destinatário" class="ml-1 align-middle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="inline-block">
+                  <polyline points="1 13 6 18 22 4" />
+                  <polyline points="10 13 15 18 23 6" />
+                </svg>
+              </span>
             </span>
           </div>
         </div>
@@ -98,12 +105,47 @@ const connectWebSocket = () => {
 
   socket.value.on("connect", () => {
     console.log("Socket.IO conectado:", socket.value.id);
+    // Entra na sala do chatroom para receber eventos apenas do chat correto
+    socket.value.emit('join_room', { chatroom_id: chatroomId.value });
   });
 
   socket.value.on("receive_message", (data) => {
     console.log("Nova mensagem recebida via Socket.IO:", data);
     messages.value.push(data);
     scrollToBottom();
+    markMessagesAsRead();
+  });
+
+  socket.value.on("message_read", (data) => {
+    console.log("Evento message_read recebido:", data);
+    // Se vier updated_messages, atualize o array messages com os dados mais recentes do backend
+    if (data.updated_messages) {
+      data.updated_messages.forEach(updatedMsg => {
+        const idx = messages.value.findIndex(m => m.id === updatedMsg.id);
+        if (idx !== -1) {
+          messages.value[idx] = { ...messages.value[idx], ...updatedMsg };
+        }
+        // Debug: mostre o campo is_read atualizado
+        console.log("Mensagem atualizada:", updatedMsg.id, "is_read:", updatedMsg.is_read);
+      });
+    } else {
+      // fallback para lógica antiga
+      messages.value.forEach(m => {
+        if (data.message_ids.includes(m.id)) {
+          if (!m.is_read) m.is_read = [];
+          if (!m.is_read.includes(data.reader_id)) {
+            m.is_read.push(data.reader_id);
+          }
+          // Debug: mostre o campo is_read atualizado
+          console.log("Mensagem atualizada:", m.id, "is_read:", m.is_read);
+        }
+      });
+    }
+    // Debug extra: mostre receiverId e o is_read de todas as mensagens
+    console.log("receiverId:", receiverId);
+    messages.value.forEach(m => {
+      console.log(`Mensagem ${m.id} is_read:`, m.is_read);
+    });
   });
 
   socket.value.on("disconnect", () => {
@@ -194,6 +236,7 @@ const fetchMessages = async () => {
       params: { room: chatroomId.value }
     });
     messages.value = response.data.results || response.data;
+    markMessagesAsRead();
   } catch (error) {
     console.error("Erro ao buscar mensagens:", error);
   }
@@ -254,6 +297,24 @@ const scrollToBottom = () => {
   }
 };
 
+const markMessagesAsRead = () => {
+  if (!currentUser.value || !messages.value.length || !socket.value) return;
+  const unread = messages.value.filter(
+    m => m.sender !== currentUser.value.id && !(m.is_read && m.is_read.includes(currentUser.value.id))
+  );
+  if (unread.length > 0) {
+    const unreadIds = unread.map(m => m.id);
+    socket.value.emit("read_message", {
+      message_ids: unreadIds,
+      chatroom_id: chatroomId.value,
+      reader_id: currentUser.value.id
+    });
+    unread.forEach(m => {
+      if (!m.is_read) m.is_read = [];
+      m.is_read.push(currentUser.value.id);
+    });
+  }
+};
 
 
 onMounted(async () => {
