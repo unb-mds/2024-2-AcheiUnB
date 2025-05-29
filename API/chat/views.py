@@ -1,5 +1,6 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -108,6 +109,14 @@ class MessageViewSet(ModelViewSet):
     def perform_create(self, serializer):
         message = serializer.save(sender=self.request.user)
         delete_old_messages.delay(message.room_id)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def mark_as_read(self, request, pk=None):
+        message = self.get_object()
+        user = request.user
+        message.read_by.add(user)
+        message.save()
+        return Response({"status": "read"})
 
 
 class ClearChatsView(APIView):

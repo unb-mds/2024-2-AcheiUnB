@@ -7,10 +7,11 @@ from .models import ChatRoom, Message
 
 class MessageSerializer(serializers.ModelSerializer):
     sender_username = serializers.ReadOnlyField(source="sender.first_name")
+    is_read = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Message
-        fields = ["id", "room", "sender", "sender_username", "content", "timestamp"]
+        fields = ["id", "room", "sender", "sender_username", "content", "timestamp", "is_read"]
         read_only_fields = ["sender"]
 
 
