@@ -46,7 +46,8 @@
             <div class="bg-laranja text-white p-3 rounded-2xl max-w-[70%] break-words shadow-md">
               <p class="text-sm">{{ message.content }}</p>
               <div class="flex items-center justify-end mt-1">
-                <span v-if="message.is_read" class="text-xs mr-1 text-white">
+                <!-- Check de mensagem lida - COMENTADO PARA CORREÇÃO FUTURA -->
+                <!-- <span v-if="message.is_read" class="text-xs mr-1 text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
                     <path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992a.252.252 0 0 1 .02-.022zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486-.943 1.179z"/>
                   </svg>
@@ -55,7 +56,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
                     <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
                   </svg>
-                </span>
+                </span> -->
                 <span class="text-xs opacity-75">
                   {{ formatTime(message.timestamp) }}
                 </span>
@@ -181,7 +182,7 @@ const connectWebSocket = () => {
     }
   });
 
-  // Adicionar validação no recebimento de mensagens via WebSocket
+  // Adicionado handler para quando uma mensagem é recebida
   socket.value.on("receive_message", (data) => {
     console.log("Nova mensagem recebida via Socket.IO:", data);
 
@@ -198,17 +199,19 @@ const connectWebSocket = () => {
     
     scrollToBottom();
     
-    if (data.sender !== currentUser.value?.id) {
-      markMessageAsRead(data.id);
-    }
+    // Marcar mensagem como lida - COMENTADO PARA CORREÇÃO FUTURA
+    // if (data.sender !== currentUser.value?.id) {
+    //   markMessageAsRead(data.id);
+    // }
   });
   
-  socket.value.on("message_status_updated", (data) => {
-    console.log("Status de mensagem atualizado:", data);
-    if (data.chat_id === chatroomId.value) {
-      updateMessagesReadStatus(data.message_ids);
-    }
-  });
+  // Listener para atualização de status de mensagens - COMENTADO PARA CORREÇÃO FUTURA
+  // socket.value.on("message_status_updated", (data) => {
+  //   console.log("Status de mensagem atualizado:", data);
+  //   if (data.chat_id === chatroomId.value) {
+  //     updateMessagesReadStatus(data.message_ids);
+  //   }
+  // });
 
   socket.value.on("disconnect", () => {
     console.warn("Socket.IO desconectado.");
@@ -288,7 +291,8 @@ const fetchMessages = async () => {
     // Processar as mensagens para agrupá-las por data
     processMessages();
     
-    markMessagesAsRead();
+    // Marcar mensagens como lidas - COMENTADO PARA CORREÇÃO FUTURA
+    // markMessagesAsRead();
     
     setTimeout(() => {
       scrollToBottom();
@@ -300,6 +304,8 @@ const fetchMessages = async () => {
   }
 };
 
+// Função para marcar mensagens como lidas - COMENTADO PARA CORREÇÃO FUTURA
+/*
 const markMessagesAsRead = async () => {
   if (!chatroomId.value || !currentUser.value?.id) return;
   
@@ -335,8 +341,10 @@ const markMessagesAsRead = async () => {
     console.error("Erro ao marcar mensagens como lidas:", error);
   }
 };
+*/
 
-// Marcar uma mensagem específica como lida
+// Função para marcar uma mensagem específica como lida - COMENTADO PARA CORREÇÃO FUTURA
+/*
 const markMessageAsRead = async (messageId) => {
   if (!chatroomId.value || !currentUser.value?.id) return;
   
@@ -357,8 +365,10 @@ const markMessageAsRead = async (messageId) => {
     console.error(`Erro ao marcar mensagem ${messageId} como lida:`, error);
   }
 };
+*/
 
-// Atualizar localmente o status das mensagens
+// Função para atualizar localmente o status das mensagens - COMENTADO PARA CORREÇÃO FUTURA
+/*
 const updateMessagesReadStatus = (messageIds) => {
   messages.value = messages.value.map(msg => {
     if (messageIds.includes(msg.id)) {
@@ -370,6 +380,7 @@ const updateMessagesReadStatus = (messageIds) => {
   // Reprocessar as mensagens para garantir que as alterações de status sejam refletidas
   processMessages();
 };
+*/
 
 const fetchCurrentUser = async () => {
   try {
