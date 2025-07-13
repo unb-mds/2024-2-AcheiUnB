@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed w-full top-0 z-[1]" v-if="isLoaded && item">
+  <div class="fixed w-full top-0 z-[20]" v-if="isLoaded && item">
     <ItemHeader
       :title="itemStatus === 'found' ? 'Item Achado' : 'Item Perdido'"
       :userId="currentUser.id"
@@ -17,7 +17,7 @@
         <button
           v-if="currentUser?.id !== item.user_id"
           @click="openReportModal"
-          class="absolute -top-4 right-0 z-0 flex items-center gap-2 text-red-600 font-semibold text-base md:text-lg hover:underline hover:text-red-700 bg-white/90 px-3 py-1 rounded-full shadow border border-red-200 transition-colors duration-200"
+          class="absolute -top-6 right-0 z-[10] flex items-center gap-2 text-red-600 font-semibold text-base md:text-lg hover:underline hover:text-red-700 bg-white/95 px-3 py-1 rounded-full shadow-lg border border-red-200 transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
             <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0112.5 3a8.5 8.5 0 018.5 8.5z"/>
