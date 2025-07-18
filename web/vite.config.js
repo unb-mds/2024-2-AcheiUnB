@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: 'AcheiUnB',
         short_name: 'AcheiUnB',
-        description: 'Aplicativo para encontrar e vender itens na UnB',
+        description: 'AcheiUnB - Perdeu algo no campus da UnB? A gente te ajuda a encontrar!',
         theme_color: '#E97316',
         background_color: '#ffffff',
         display: 'standalone',
