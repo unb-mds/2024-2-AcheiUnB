@@ -423,6 +423,11 @@ const fetchChatroomData = async () => {
 };
 const messagesContainer = ref(null);
 
+// Função para lidar com o foco no input
+const handleInputFocus = () => {
+  // Marcar mensagens como lidas quando o usuário foca no input
+  markMessagesAsRead();
+};
 
 const scrollToBottom = () => {
   const container = messagesContainer.value;
@@ -543,13 +548,14 @@ onMounted(async () => {
   setTimeout(() => {
     scrollToBottom();
   }, 300);
-  
-  // Limpeza ao desmontar o componente
-  return () => {
-    if (socket.value) {
-      socket.value.disconnect();
-    }
-  };
+});
+
+// Cleanup ao desmontar o componente
+onBeforeUnmount(() => {
+  if (socket.value) {
+    socket.value.disconnect();
+  }
+  window.removeEventListener('click', closeEmojiPickerOnClickOutside);
 });
 
 </script>
