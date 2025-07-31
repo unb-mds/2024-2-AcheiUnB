@@ -1,0 +1,32 @@
+{
+  "name": "AcheiUnB",
+  "short_name": "AcheiUnB",
+  "description": "Aplicativo para encontrar e registrar itens perdidos na UnB",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E97316",
+  "lang": "pt-BR",
+  "scope": "/",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/dist/assets/Favicon-DZaE_dAz.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/dist/assets/Favicon2-GhYJHopS.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/dist/assets/Favicon3-Dkcl5vQE.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

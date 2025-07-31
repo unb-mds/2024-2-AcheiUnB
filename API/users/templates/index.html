@@ -8,16 +8,42 @@
   <link rel="icon" type="image/png" href="{% static 'dist/assets/Favicon3-Dkcl5vQE.png' %}"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AcheiUnB</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="AcheiUnB - Perdeu algo no campus da UnB? A gente te ajuda a encontrar!"/>
+  <meta name="theme-color" content="#E97316"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="AcheiUnB"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="application-name" content="AcheiUnB"/>
+  
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="{% static 'dist/assets/Favicon2-GhYJHopS.png' %}"/>
+  <link rel="manifest" href="/manifest.json"/>
+  
   <!-- Carrega automaticamente o CSS certo -->
-  <link rel="stylesheet" href="{% vite_asset 'index.html' 'css' %}"/> 
-  <!-- Observe acima que pegamos o 'src/main.js' do manifest, 
-       mas na verdade, se o manifest listar CSS separado, pode estar em outro lugar. 
-       Leia o JSON para saber as chaves exatas. -->
+  <link rel="stylesheet" href="{% vite_asset 'index.html' 'css' %}"/>
 
 </head>
 <body>
   <div id="app"></div>
   <!-- Carrega automaticamente o JS certo -->
   <script src="{% vite_asset 'index.html' 'js' %}"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
