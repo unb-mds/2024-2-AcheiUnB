@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from users.utils.validators import validate_date_not_too_old
 
 
 class UserProfile(models.Model):
@@ -55,7 +56,11 @@ class Item(models.Model):
     color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="lost")
-    found_lost_date = models.DateTimeField(null=True, blank=True)
+    found_lost_date = models.DateTimeField(
+        null=True, 
+        blank=True, 
+        validators=[validate_date_not_too_old]
+        )
     created_at = models.DateTimeField(auto_now_add=True)
 
     barcode = models.CharField(max_length=10, editable=False, blank=True)
