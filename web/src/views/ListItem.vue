@@ -582,7 +582,24 @@ const handleDeleteConfirmed = async () => {
   try {
     await deleteItem(item.value.id);
     closeDeleteModal();
-    router.push(`/${itemStatus.value}`);
+    
+    // Exibir mensagem de sucesso
+    alertMessage.value = "Item excluído com sucesso.";
+    submitSuccess.value = true;
+    
+    // Aguardar um momento para exibir a mensagem antes de redirecionar
+    setTimeout(() => {
+      // Redirecionar para a página "Meus Itens" apropriada baseado no status do item
+      if (itemStatus.value === 'found') {
+        router.push('/user-items-found');
+      } else if (itemStatus.value === 'lost') {
+        router.push('/user-items-lost');
+      } else {
+        // Fallback para página inicial caso o status não seja reconhecido
+        router.push(`/${itemStatus.value}`);
+      }
+    }, 2000); // 2 segundos para mostrar a mensagem de sucesso
+    
   } catch (error) {
     closeDeleteModal();
     console.error("Erro ao excluir item:", error);
