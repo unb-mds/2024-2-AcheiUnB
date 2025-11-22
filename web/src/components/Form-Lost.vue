@@ -1270,12 +1270,19 @@ export default {
       }
 
       if (this.item.lostDate) {
-        const selectedDate = new Date(this.item.lostDate);
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
+        // Cria a data/hora completa combinando data e hora
+        const [year, month, day] = this.item.lostDate.split("-").map(Number);
+        const timeValue = this.lostTime?.trim();
+        const [hours, minutes] = timeValue && timeValue !== '' 
+          ? timeValue.split(":").map(Number) 
+          : [0, 0];
         
-        if (selectedDate > currentDate) {
-          this.alertMessage = "Ops! Não é possível selecionar uma data no futuro.";
+        const selectedDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+        const currentDateTime = new Date();
+        
+        // Valida se a data/hora selecionada é futura
+        if (selectedDateTime > currentDateTime) {
+          this.alertMessage = "Ops! Não é possível selecionar uma data e hora no futuro.";
           this.submitError = true;
           this.isSubmitting = false;
           return;

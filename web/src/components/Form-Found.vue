@@ -1308,12 +1308,19 @@ export default {
       }
 
       if (this.item.foundDate) {
-        const selectedDate = new Date(this.item.foundDate);
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
+        // Cria a data/hora completa combinando data e hora
+        const [year, month, day] = this.item.foundDate.split("-").map(Number);
+        const timeValue = this.foundTime?.trim();
+        const [hours, minutes] = timeValue && timeValue !== '' 
+          ? timeValue.split(":").map(Number) 
+          : [0, 0];
         
-        if (selectedDate > currentDate) {
-          this.alertMessage = "Ops! Não é possível selecionar uma data no futuro.";
+        const selectedDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+        const currentDateTime = new Date();
+        
+        // Valida se a data/hora selecionada é futura
+        if (selectedDateTime > currentDateTime) {
+          this.alertMessage = "Ops! Não é possível selecionar uma data e hora no futuro.";
           this.submitError = true;
           this.isSubmitting = false;
           return;

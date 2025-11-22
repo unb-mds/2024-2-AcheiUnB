@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Brand, Category, Color, Item, ItemImage, Location
@@ -87,6 +88,22 @@ class ItemSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "Cada item em 'images' deve ser um arquivo válido."
                 )
+        return value
+
+    def validate_found_lost_date(self, value):
+        """
+        Valida que a data e hora de encontro/perda não seja no futuro.
+        """
+        if value:
+            # Obtém a data/hora atual com timezone
+            now = timezone.now()
+
+            # Se o valor fornecido for maior que agora, é futuro
+            if value > now:
+                raise serializers.ValidationError(
+                    "Não é possível registrar uma data e hora no futuro."
+                )
+
         return value
 
     def create(self, validated_data):
