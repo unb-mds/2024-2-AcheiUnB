@@ -3,6 +3,7 @@ from rest_framework import serializers
 from users.models import Item
 
 from .models import ChatRoom, Message
+from .utils import count_graphemes
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -10,6 +11,16 @@ class MessageSerializer(serializers.ModelSerializer):
 
     def get_sender_username(self, obj):
         return obj.sender.first_name or obj.sender.last_name or obj.sender.username
+
+    def validate_content(self, value):
+
+        grapheme_count = count_graphemes(value)
+        if grapheme_count > 80:
+            raise serializers.ValidationError(
+                f"A mensagem não pode ter mais de 80 caracteres. "
+                f"Você usou {grapheme_count} caracteres."
+            )
+        return value
 
     class Meta:
         model = Message

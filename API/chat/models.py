@@ -35,10 +35,27 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)  # Indica se a mensagem foi lida
-    notification_sent = models.BooleanField(
-        default=False
-    )  # Indica se uma notificação foi enviada para esta mensagem
+    is_read = models.BooleanField(default=False)
+    notification_sent = models.BooleanField(default=False)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        from .utils import count_graphemes
+
+        super().clean()
+
+        if not self.content or not self.content.strip():
+            raise ValidationError({"content": "A mensagem não pode ser vazia."})
+
+        grapheme_count = count_graphemes(self.content)
+        if grapheme_count > 80:
+            raise ValidationError(
+                {
+                    "content": f"A mensagem não pode ter mais de 80 caracteres. "
+                    f"Você usou {grapheme_count} caracteres."
+                }
+            )
 
     def __str__(self):
         return f"{self.sender.username}: {self.content[:50]}"

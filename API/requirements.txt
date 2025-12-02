@@ -31,3 +31,4 @@ pytest-django
 pytest-cov
 drf-yasg
 gunicorn
+regex
