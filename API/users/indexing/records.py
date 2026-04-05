@@ -25,8 +25,6 @@ def item_to_record(item: Item) -> ItemRecord:
         description=item.description or "",
         barcode=item.barcode or "",
         found_lost_date=(
-            item.found_lost_date.date().isoformat()
-            if item.found_lost_date
-            else ""
+            item.found_lost_date.date().isoformat() if item.found_lost_date else ""
         ),
     )

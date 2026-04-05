@@ -25,6 +25,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import ItemFilter
+from .indexing.services import run_indexed_item_search, should_use_indexed_search
 from .models import Brand, Category, Color, Item, ItemImage, Location, UserProfile
 from .serializers import (
     BrandSerializer,
@@ -35,7 +36,6 @@ from .serializers import (
     LocationSerializer,
 )
 from .tasks import find_and_notify_matches_task, upload_images_to_cloudinary
-from .indexing.services import run_indexed_item_search, should_use_indexed_search
 
 
 class UserListView(View):
@@ -144,23 +144,23 @@ class ItemViewSet(ModelViewSet):
         return queryset
 
     def _get_requested_ordering_fields(self):
-        raw_ordering = self.request.query_params.get("ordering")
+        raw_ordering = self.request.query_params.get('ordering')
         if not raw_ordering:
-            return ["-created_at"]
+            return ['-created_at']
 
         allowed_fields = set(self.ordering_fields)
         requested_fields = []
 
-        for raw_field in raw_ordering.split(","):
-            raw_field = raw_field.strip()
-            if not raw_field:
+        for requested_field in raw_ordering.split(','):
+            cleaned_field = requested_field.strip()
+            if not cleaned_field:
                 continue
 
-            field_name = raw_field.lstrip("-")
+            field_name = cleaned_field.lstrip('-')
             if field_name in allowed_fields:
-                requested_fields.append(raw_field)
+                requested_fields.append(cleaned_field)
 
-        return requested_fields or ["-created_at"]
+        return requested_fields or ['-created_at']
 
     def _apply_ordering_to_results(self, results):
         ordered_results = list(results)
@@ -172,7 +172,9 @@ class ItemViewSet(ModelViewSet):
             non_null_items = [
                 item for item in ordered_results if getattr(item, field_name) is not None
             ]
-            null_items = [item for item in ordered_results if getattr(item, field_name) is None]
+            null_items = [
+                item for item in ordered_results if getattr(item, field_name) is None
+            ]
 
             non_null_items.sort(
                 key=lambda item: getattr(item, field_name),

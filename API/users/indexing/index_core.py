@@ -65,7 +65,8 @@ def binary_search_block(
     if order_by not in {"barcode", "found_lost_date"}:
         raise ValueError("order_by must be 'barcode' or 'found_lost_date'")
 
-    key_fn = lambda item: _probe_value(item, order_by)
+    def key_fn(item):
+        return _probe_value(item, order_by)
 
     left = bisect_left(block, target, key=key_fn)
     right = bisect_right(block, target, key=key_fn)
