@@ -144,23 +144,23 @@ class ItemViewSet(ModelViewSet):
         return queryset
 
     def _get_requested_ordering_fields(self):
-        raw_ordering = self.request.query_params.get('ordering')
+        raw_ordering = self.request.query_params.get("ordering")
         if not raw_ordering:
-            return ['-created_at']
+            return ["-created_at"]
 
         allowed_fields = set(self.ordering_fields)
         requested_fields = []
 
-        for requested_field in raw_ordering.split(','):
+        for requested_field in raw_ordering.split(","):
             cleaned_field = requested_field.strip()
             if not cleaned_field:
                 continue
 
-            field_name = cleaned_field.lstrip('-')
+            field_name = cleaned_field.lstrip("-")
             if field_name in allowed_fields:
                 requested_fields.append(cleaned_field)
 
-        return requested_fields or ['-created_at']
+        return requested_fields or ["-created_at"]
 
     def _apply_ordering_to_results(self, results):
         ordered_results = list(results)

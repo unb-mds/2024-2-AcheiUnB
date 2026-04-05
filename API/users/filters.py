@@ -38,4 +38,3 @@ class ItemFilter(django_filters.FilterSet):
             "brand_name",
             "status",
         ]
-        

@@ -63,17 +63,17 @@ def indexed_search(
     if not block:
         return []
 
-    if index.order_by == 'barcode' and active_filters.barcode:
+    if index.order_by == "barcode" and active_filters.barcode:
         candidate_block = binary_search_block(
             block,
             active_filters.barcode,
-            order_by='barcode',
+            order_by="barcode",
         )
-    elif index.order_by == 'found_lost_date' and active_filters.found_lost_date:
+    elif index.order_by == "found_lost_date" and active_filters.found_lost_date:
         candidate_block = binary_search_block(
             block,
             active_filters.found_lost_date,
-            order_by='found_lost_date',
+            order_by="found_lost_date",
         )
     else:
         candidate_block = block
