@@ -35,6 +35,7 @@ from .serializers import (
     LocationSerializer,
 )
 from .tasks import find_and_notify_matches_task, upload_images_to_cloudinary
+from .indexing.services import run_indexed_item_search, should_use_indexed_search
 
 
 class UserListView(View):
@@ -135,11 +136,74 @@ class ItemViewSet(ModelViewSet):
 
     ordering_fields = ["created_at", "found_lost_date"]
 
+    def _filter_queryset_without_ordering(self, queryset):
+        for backend in self.filter_backends:
+            if issubclass(backend, OrderingFilter):
+                continue
+            queryset = backend().filter_queryset(self.request, queryset, self)
+        return queryset
+
+    def _get_requested_ordering_fields(self):
+        raw_ordering = self.request.query_params.get("ordering")
+        if not raw_ordering:
+            return ["-created_at"]
+
+        allowed_fields = set(self.ordering_fields)
+        requested_fields = []
+
+        for raw_field in raw_ordering.split(","):
+            raw_field = raw_field.strip()
+            if not raw_field:
+                continue
+
+            field_name = raw_field.lstrip("-")
+            if field_name in allowed_fields:
+                requested_fields.append(raw_field)
+
+        return requested_fields or ["-created_at"]
+
+    def _apply_ordering_to_results(self, results):
+        ordered_results = list(results)
+
+        for ordering in reversed(self._get_requested_ordering_fields()):
+            reverse = ordering.startswith("-")
+            field_name = ordering.lstrip("-")
+
+            non_null_items = [
+                item for item in ordered_results if getattr(item, field_name) is not None
+            ]
+            null_items = [item for item in ordered_results if getattr(item, field_name) is None]
+
+            non_null_items.sort(
+                key=lambda item: getattr(item, field_name),
+                reverse=reverse,
+            )
+            ordered_results = non_null_items + null_items
+
+        return ordered_results
+
     @swagger_auto_schema(
         operation_description="Retorna a lista de itens cadastrados no sistema.",
         responses={200: openapi.Response("Lista de itens", ItemSerializer(many=True))},
     )
     def list(self, request, *args, **kwargs):
+        if should_use_indexed_search(request.query_params, request.path):
+            queryset = self._filter_queryset_without_ordering(self.get_queryset())
+            results = run_indexed_item_search(
+                queryset=queryset,
+                params=request.query_params,
+                path=request.path,
+            )
+            results = self._apply_ordering_to_results(results)
+
+            page = self.paginate_queryset(results)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+            serializer = self.get_serializer(results, many=True)
+            return Response(serializer.data)
+
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
