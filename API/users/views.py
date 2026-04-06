@@ -184,11 +184,24 @@ class ItemViewSet(ModelViewSet):
 
         return ordered_results
 
+    def _has_legacy_only_filters(self):
+        legacy_only_filters = (
+            "search",
+            "category_name",
+            "color_name",
+            "location_name",
+            "brand_name",
+        )
+        return any(self.request.query_params.get(param) for param in legacy_only_filters)
+
     @swagger_auto_schema(
         operation_description="Retorna a lista de itens cadastrados no sistema.",
         responses={200: openapi.Response("Lista de itens", ItemSerializer(many=True))},
     )
     def list(self, request, *args, **kwargs):
+        if self._has_legacy_only_filters():
+            return super().list(request, *args, **kwargs)
+
         if should_use_indexed_search(request.query_params, request.path):
             base_queryset = self.get_queryset()
 
