@@ -25,6 +25,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import ItemFilter
+from .indexing.services import run_indexed_item_search, should_use_indexed_search
 from .models import Brand, Category, Color, Item, ItemImage, Location, UserProfile
 from .serializers import (
     BrandSerializer,
@@ -135,11 +136,96 @@ class ItemViewSet(ModelViewSet):
 
     ordering_fields = ["created_at", "found_lost_date"]
 
+    def _filter_queryset_without_ordering(self, queryset):
+        for backend in self.filter_backends:
+            if issubclass(backend, OrderingFilter):
+                continue
+            queryset = backend().filter_queryset(self.request, queryset, self)
+        return queryset
+
+    def _get_requested_ordering_fields(self):
+        raw_ordering = self.request.query_params.get("ordering")
+        if not raw_ordering:
+            return ["-created_at"]
+
+        allowed_fields = set(self.ordering_fields)
+        requested_fields = []
+
+        for requested_field in raw_ordering.split(","):
+            cleaned_field = requested_field.strip()
+            if not cleaned_field:
+                continue
+
+            field_name = cleaned_field.lstrip("-")
+            if field_name in allowed_fields:
+                requested_fields.append(cleaned_field)
+
+        return requested_fields or ["-created_at"]
+
+    def _apply_ordering_to_results(self, results):
+        ordered_results = list(results)
+
+        for ordering in reversed(self._get_requested_ordering_fields()):
+            reverse = ordering.startswith("-")
+            field_name = ordering.lstrip("-")
+
+            non_null_items = [
+                item for item in ordered_results if getattr(item, field_name) is not None
+            ]
+            null_items = [
+                item for item in ordered_results if getattr(item, field_name) is None
+            ]
+
+            non_null_items.sort(
+                key=lambda item: getattr(item, field_name),
+                reverse=reverse,
+            )
+            ordered_results = non_null_items + null_items
+
+        return ordered_results
+
+    def _has_legacy_only_filters(self):
+        legacy_only_filters = (
+            "search",
+            "category_name",
+            "color_name",
+            "location_name",
+            "brand_name",
+        )
+        return any(self.request.query_params.get(param) for param in legacy_only_filters)
+
     @swagger_auto_schema(
         operation_description="Retorna a lista de itens cadastrados no sistema.",
         responses={200: openapi.Response("Lista de itens", ItemSerializer(many=True))},
     )
     def list(self, request, *args, **kwargs):
+        if self._has_legacy_only_filters():
+            return super().list(request, *args, **kwargs)
+
+        if should_use_indexed_search(request.query_params, request.path):
+            base_queryset = self.get_queryset()
+
+            indexed_results = run_indexed_item_search(
+                queryset=base_queryset,
+                params=request.query_params,
+                path=request.path,
+            )
+
+            indexed_ids = [item.id for item in indexed_results]
+
+            queryset = self.get_queryset().filter(id__in=indexed_ids)
+            queryset = self._filter_queryset_without_ordering(queryset)
+
+            results = self._apply_ordering_to_results(queryset)
+
+            page = self.paginate_queryset(results)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+            serializer = self.get_serializer(results, many=True)
+            return Response(serializer.data)
+
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
