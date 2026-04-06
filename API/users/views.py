@@ -190,13 +190,20 @@ class ItemViewSet(ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         if should_use_indexed_search(request.query_params, request.path):
-            queryset = self._filter_queryset_without_ordering(self.get_queryset())
-            results = run_indexed_item_search(
-                queryset=queryset,
+            base_queryset = self.get_queryset()
+
+            indexed_results = run_indexed_item_search(
+                queryset=base_queryset,
                 params=request.query_params,
                 path=request.path,
             )
-            results = self._apply_ordering_to_results(results)
+
+            indexed_ids = [item.id for item in indexed_results]
+
+            queryset = self.get_queryset().filter(id__in=indexed_ids)
+            queryset = self._filter_queryset_without_ordering(queryset)
+
+            results = self._apply_ordering_to_results(queryset)
 
             page = self.paginate_queryset(results)
             if page is not None:
