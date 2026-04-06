@@ -13,14 +13,32 @@ class TestIndexedItemAPI(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="password")
 
-        self.category = Category.objects.create(name="Acessórios", category_id="01")
-        self.other_category = Category.objects.create(name="Documentos", category_id="02")
+        self.category, _ = Category.objects.get_or_create(
+            category_id="01",
+            defaults={"name": "Acessórios"},
+        )
+        self.other_category, _ = Category.objects.get_or_create(
+            category_id="02",
+            defaults={"name": "Documentos"},
+        )
 
-        self.color = Color.objects.create(name="Preto", color_id="01")
-        self.other_color = Color.objects.create(name="Branco", color_id="02")
+        self.color, _ = Color.objects.get_or_create(
+            color_id="01",
+            defaults={"name": "Preto"},
+        )
+        self.other_color, _ = Color.objects.get_or_create(
+            color_id="02",
+            defaults={"name": "Branco"},
+        )
 
-        self.location = Location.objects.create(name="Biblioteca", location_id="01")
-        self.other_location = Location.objects.create(name="ICC", location_id="02")
+        self.location, _ = Location.objects.get_or_create(
+            location_id="01",
+            defaults={"name": "Biblioteca"},
+        )
+        self.other_location, _ = Location.objects.get_or_create(
+            location_id="02",
+            defaults={"name": "ICC"},
+        )
 
         self.item = Item.objects.create(
             user=self.user,

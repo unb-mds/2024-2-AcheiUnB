@@ -37,11 +37,15 @@ class WelcomeEmailSignalTests(TestCase):
 
     @patch("users.tasks.send_welcome_email.delay")
     def test_send_welcome_email_on_first_login(self, mock_send_email):
-        user = User.objects.create_user(username="testuser3", password="password")
+        user = User.objects.create_user(
+            username="testuser3",
+            password="password",
+            email="testuser3@example.com",
+        )
 
         user_logged_in.send(sender=User, request=None, user=user)
 
-        mock_send_email.assert_called_once_with(user.email, user.first_name)
+        mock_send_email.assert_called_once_with(user.email, user.username)
 
         user.profile.refresh_from_db()
         assert user.profile.welcome_email_sent
