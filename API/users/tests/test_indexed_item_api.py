@@ -75,8 +75,9 @@ class TestIndexedItemAPI(APITestCase):
 
         response = self.client.get(
             f"/api/items/?engine=indexed&status=found&category={self.category.id}"
-            f"&location={self.location.id}&barcode={self.item.barcode}&category_name=Acessórios"
-            "&color_name=Preto&search=Relógio"
+            f"&location={self.location.id}&barcode={self.item.barcode}"
+            f"&category_name={self.category.name}&color_name={self.color.name}"
+            f"&search={self.item.name}"
         )
 
         assert response.status_code == 200
