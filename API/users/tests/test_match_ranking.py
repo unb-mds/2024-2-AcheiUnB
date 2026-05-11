@@ -67,7 +67,10 @@ def test_datas_proximas_tem_score_maior():
 
 
 def test_candidato_mais_parecido_tem_score_maior():
-    """Demonstra que o candidato mais parecido deve ter score maior que candidato menos parecido."""
+    """
+    Demonstra que o candidato mais parecido deve ter score maior que
+    candidato menos parecido.
+    """
     target = {
         "name": "Fone bluetooth preto",
         "description": "Fone sem fio com estojo oval e borrachas pequenas.",
@@ -142,7 +145,10 @@ def test_ordena_candidatos_por_score_decrescente():
 
 
 def test_filtra_candidatos_abaixo_do_score_minimo():
-    """Filtra candidatos com score abaixo do mínimo (36) e ordena os restantes por score decrescente."""
+    """
+    Filtra candidatos com score abaixo do mínimo (36) e ordena os
+    restantes por score decrescente.
+    """
     target = {
         "name": "Fone bluetooth preto",
         "description": "Fone sem fio com estojo oval e borrachas pequenas.",
@@ -177,7 +183,10 @@ def test_filtra_candidatos_abaixo_do_score_minimo():
 
 
 def test_retorna_apenas_items_ordenados():
-    """Retorna apenas os matches ordenados (mais provável para o menos provável) a serem enviados para o usuário."""
+    """
+    Retorna apenas os matches ordenados (mais provável para o menos
+    provável) a serem enviados para o usuário.
+    """
     target = {
         "name": "Fone bluetooth preto",
         "description": "Fone sem fio com estojo oval e borrachas pequenas.",

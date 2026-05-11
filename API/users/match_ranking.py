@@ -10,6 +10,7 @@ from .merge_sort import merge_sort
 @dataclass(frozen=True)
 class RankedMatch:
     """Representa um candidato de match junto com sua pontuação."""
+
     item: Any
     score: float
 
@@ -96,16 +97,8 @@ def calculate_similarity_score(target_item: Any, candidate_item: Any) -> float:
         _get_attribute(target_item, "description"),
         _get_attribute(candidate_item, "description"),
     )
-    color_score = categorical_similarity(
-        target_item,
-        candidate_item,
-        "color"
-    )
-    brand_score = categorical_similarity(
-        target_item,
-        candidate_item,
-        "brand"
-    )
+    color_score = categorical_similarity(target_item, candidate_item, "color")
+    brand_score = categorical_similarity(target_item, candidate_item, "brand")
     date_score = date_similarity(
         _get_attribute(target_item, "found_lost_date"),
         _get_attribute(candidate_item, "found_lost_date"),
@@ -149,7 +142,10 @@ def _get_named_attribute(item: Any, attribute_name: str) -> str:
 def categorical_similarity(
     target_item: Any, candidate_item: Any, attribute_name: str
 ) -> float:
-    """Compara atributos categóricos como cor e marca, retornando 1 para correspondência exata e 0 caso contrário."""
+    """
+    Compara atributos categóricos como cor e marca, retornando 1 para
+    correspondência exata e 0 caso contrário.
+    """
     target_value = _get_named_attribute(target_item, attribute_name)
     candidate_value = _get_named_attribute(candidate_item, attribute_name)
 
