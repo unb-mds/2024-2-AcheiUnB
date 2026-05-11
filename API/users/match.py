@@ -1,3 +1,4 @@
+from .match_ranking import get_ranked_items
 from .models import Item
 from .tasks import send_match_notification
 
@@ -50,10 +51,12 @@ def find_and_notify_matches(target_item: Item, max_distance=2):
             target_item, opposite_status="found", max_distance=max_distance
         )
         if matches:
-            target_item.matches.add(*matches)
+            ranked_matches = get_ranked_items(target_item, matches)
+
+            target_item.matches.add(*ranked_matches)
             target_item.save()
 
-            match_data = generate_match_data(matches)
+            match_data = generate_match_data(ranked_matches)
             send_match_notification.delay(
                 to_email=target_item.user.email,
                 item_name=target_item.name,
@@ -68,8 +71,10 @@ def find_and_notify_matches(target_item: Item, max_distance=2):
             lost_item.matches.add(target_item)
             lost_item.save()
 
-            updated_matches = lost_item.matches.all()
-            match_data = generate_match_data(updated_matches)
+            updated_matches = list(lost_item.matches.all())
+            ranked_matches = get_ranked_items(lost_item, updated_matches)
+
+            match_data = generate_match_data(ranked_matches)
             send_match_notification.delay(
                 to_email=lost_item.user.email,
                 item_name=lost_item.name,
